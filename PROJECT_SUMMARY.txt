@@ -1,0 +1,43 @@
+# PROJECT SUMMARY & DATABASE GUIDE
+
+This document summarizes the features implemented in this ERP system and provides a guide for future database modifications.
+
+## 1. COMPLETED FEATURES
+- **Admin Dashboard**: Real-time map showing all active employees, along with live statistics (Total Employees, Active Trackers, Total Customers).
+- **Employee Management (CRUD)**: Full Create, Read, Update, and Delete (Hard Delete) functionality for employee records.
+- **Real-Time Location Tracking**: Mobile-friendly interface for employees to share their live GPS coordinates and battery level.
+- **Internal Chat System**: A private messaging platform for employees with real-time notifications (unread badges and sound alerts) and persistent history.
+- **Role-Based Security**: Secured backend routes for Admins vs. Field Employees using JWT authentication.
+- **GitHub Integration**: Project fully version-controlled and pushed to GitHub.
+
+## 2. DATABASE OVERVIEW (MySQL + Prisma)
+The database is built using **MySQL** and managed via **Prisma ORM**. 
+
+### Current Tables:
+1. **User**: Stores login credentials, roles (Admin/Employee), and account status.
+2. **Employee**: Stores profile details (Name, Dept, Phone) linked to a User account.
+3. **GpsLog**: Stores time-stamped location data (lat/lng/battery) for tracking.
+4. **Message**: Stores private chat messages between employees.
+5. **Attendance**: (Skeleton) Ready for future attendance tracking features.
+
+## 3. HOW TO MODIFY THE DATABASE IN THE FUTURE
+If you want to add new fields (e.g., adding "Address" to an employee) or new tables:
+
+1. **Modify Schema**:
+   Open `backend/prisma/schema.prisma` and add your new fields or models.
+   
+2. **Push Changes**:
+   Run this command in the `backend` terminal to update your MySQL database:
+   `npx prisma db push`
+
+3. **Update Types**:
+   Regenerate the Prisma client to get updated TypeScript types:
+   `npx prisma generate`
+
+4. **Update Controllers**:
+   Update the relevant files in `backend/src/controllers/` to handle the new data.
+
+## 4. FUTURE RECOMMENDATIONS
+- **Production Database**: Currently, it uses a local MySQL. For production, move to a cloud database (like AWS RDS or Google Cloud SQL).
+- **HTTPS**: Real-time GPS tracking requires an SSL/HTTPS connection to work on mobile browsers outside of localhost.
+- **Image Uploads**: You can add profile picture support by adding an `imageUrl` field to the Employee model and using a service like AWS S3.
