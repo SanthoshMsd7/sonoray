@@ -329,124 +329,202 @@ function AdminAttendanceContent() {
           </div>
         </div>
 
-        {/* Table Container */}
+        {/* Table Container (Desktop) / Calendar View (Mobile) */}
         <div className="flex-1 overflow-auto relative" ref={scrollRef}>
-          <table className="w-full border-separate border-spacing-0">
-            <thead className="sticky top-0 z-20 bg-white">
-              <tr>
-                <th className="sticky left-0 z-30 bg-white px-6 py-4 border-b border-r border-slate-100 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[200px]">Employee Name</th>
-                {daysInMonth.map(day => (
-                  <th 
-                    key={day.toString()} 
-                    className={`px-3 py-4 border-b border-r border-slate-100 text-center min-w-[45px] ${isToday(day) ? 'bg-blue-50/50' : ''}`}
-                  >
-                    <p className={`text-[10px] font-black ${isSunday(day) ? 'text-rose-500' : 'text-slate-400'}`}>{format(day, 'EEE')}</p>
-                    <p className={`text-sm font-black mt-0.5 ${isToday(day) ? 'text-blue-600 underline decoration-2 underline-offset-4' : 'text-slate-800'}`}>{format(day, 'd')}</p>
-                  </th>
-                ))}
-                <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">P</th>
-                <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">A</th>
-                <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">L</th>
-                <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">H</th>
-                <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">%</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
+          {/* Desktop Table View */}
+          <div className="hidden lg:block">
+            <table className="w-full border-separate border-spacing-0">
+              <thead className="sticky top-0 z-20 bg-white">
                 <tr>
-                  <td colSpan={daysInMonth.length + 6} className="py-20 text-center">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Generating Attendance Ledger...</p>
-                    </div>
-                  </td>
+                  <th className="sticky left-0 z-30 bg-white px-6 py-4 border-b border-r border-slate-100 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[200px]">Employee Name</th>
+                  {daysInMonth.map(day => (
+                    <th 
+                      key={day.toString()} 
+                      className={`px-3 py-4 border-b border-r border-slate-100 text-center min-w-[45px] ${isToday(day) ? 'bg-blue-50/50' : ''}`}
+                    >
+                      <p className={`text-[10px] font-black ${isSunday(day) ? 'text-rose-500' : 'text-slate-400'}`}>{format(day, 'EEE')}</p>
+                      <p className={`text-sm font-black mt-0.5 ${isToday(day) ? 'text-blue-600 underline decoration-2 underline-offset-4' : 'text-slate-800'}`}>{format(day, 'd')}</p>
+                    </th>
+                  ))}
+                  <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">P</th>
+                  <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">A</th>
+                  <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">L</th>
+                  <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">H</th>
+                  <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">%</th>
                 </tr>
-              ) : filteredEmployees.map(emp => {
-                const stats = calculateStats(emp.id);
-                return (
-                  <tr key={emp.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 px-6 py-4 border-b border-r border-slate-100">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xs">
-                          {emp.firstName[0]}{emp.lastName[0]}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-slate-800 whitespace-nowrap">{emp.firstName} {emp.lastName}</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase">{emp.department?.name || 'Staff'}</p>
-                        </div>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={daysInMonth.length + 6} className="py-20 text-center">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Generating Attendance Ledger...</p>
                       </div>
                     </td>
+                  </tr>
+                ) : filteredEmployees.map(emp => {
+                  const stats = calculateStats(emp.id);
+                  return (
+                    <tr key={emp.id} className="hover:bg-slate-50/50 transition-colors group">
+                      <td className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 px-6 py-4 border-b border-r border-slate-100">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xs">
+                            {emp.firstName[0]}{emp.lastName[0]}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-800 whitespace-nowrap">{emp.firstName} {emp.lastName}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase">{emp.department?.name || 'Staff'}</p>
+                          </div>
+                        </div>
+                      </td>
+                      {daysInMonth.map(day => {
+                        const status = getStatus(emp.id, day);
+                        return (
+                          <td 
+                            key={day.toString()} 
+                            className={`p-1 border-b border-r border-slate-100 text-center ${isToday(day) ? 'bg-blue-50/20' : ''}`}
+                          >
+                            <div className="relative flex justify-center items-center h-full">
+                              <button
+                                onClick={() => setActivePicker(activePicker?.empId === emp.id && activePicker?.date === day.toISOString() ? null : { empId: emp.id, date: day.toISOString() })}
+                                className={`w-9 h-9 rounded-xl text-[10px] font-black transition-all flex items-center justify-center border-2 ${
+                                  status 
+                                    ? `${STATUS_COLORS[status as keyof typeof STATUS_COLORS]} border-transparent shadow-sm` 
+                                    : 'bg-white border-slate-100 text-slate-300 hover:border-blue-200 hover:text-blue-400'
+                                }`}
+                              >
+                                {status ? status[0] : '-'}
+                              </button>
+
+                              {/* Status Picker Popover */}
+                              {activePicker?.empId === emp.id && activePicker?.date === day.toISOString() && (
+                                <>
+                                  <div className="fixed inset-0 z-40" onClick={() => setActivePicker(null)}></div>
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 flex flex-col gap-1 min-w-[120px] animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {[
+                                      { id: 'PRESENT', label: 'Present', color: 'bg-emerald-500', icon: FiCheckCircle },
+                                      { id: 'ABSENT', label: 'Absent', color: 'bg-rose-500', icon: FiXCircle },
+                                      { id: 'LEAVE', label: 'Leave', color: 'bg-blue-500', icon: FiInfo },
+                                      { id: 'HOLIDAY', label: 'Holiday', color: 'bg-amber-400', icon: FiCalendar },
+                                    ].map(opt => (
+                                      <button
+                                        key={opt.id}
+                                        onClick={() => {
+                                          handleStatusChange(emp.id, day, opt.id);
+                                          setActivePicker(null);
+                                        }}
+                                        className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 rounded-xl transition-all group"
+                                      >
+                                        <div className={`w-6 h-6 rounded-lg ${opt.color} flex items-center justify-center text-white`}>
+                                          <opt.icon className="w-3.5 h-3.5" />
+                                        </div>
+                                        <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900">{opt.label}</span>
+                                      </button>
+                                    ))}
+                                    <div className="h-px bg-slate-50 my-1"></div>
+                                    <button
+                                      onClick={() => {
+                                        handleStatusChange(emp.id, day, '');
+                                        setActivePicker(null);
+                                      }}
+                                      className="w-full text-[10px] font-black text-slate-400 uppercase tracking-widest py-2 hover:text-slate-600"
+                                    >
+                                      Clear
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        );
+                      })}
+                      <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-emerald-600 bg-emerald-50/20">{stats.present}</td>
+                      <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-rose-600 bg-rose-50/20">{stats.absent}</td>
+                      <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-blue-600 bg-blue-50/20">{stats.leave}</td>
+                      <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-amber-600 bg-amber-50/20">{stats.holiday}</td>
+                      <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-slate-800 bg-slate-50">{stats.percentage}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Calendar View */}
+          <div className="lg:hidden p-4 space-y-4">
+            {loading ? (
+              <div className="py-20 text-center">
+                <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="mt-4 text-xs font-bold text-slate-400 uppercase">Loading Attendance View...</p>
+              </div>
+            ) : filteredEmployees.map(emp => {
+              const stats = calculateStats(emp.id);
+              return (
+                <div key={emp.id} className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
+                        {emp.firstName[0]}{emp.lastName[0]}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800">{emp.firstName} {emp.lastName}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{emp.department?.name || 'Staff'}</p>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black">{stats.percentage}%</div>
+                  </div>
+                  
+                  {/* Calendar Grid Box */}
+                  <div className="grid grid-cols-7 gap-1 bg-slate-50 p-2 rounded-2xl">
+                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                      <div key={i} className="text-center text-[9px] font-black text-slate-300 py-1">{d}</div>
+                    ))}
+                    {/* Add padding for start of month */}
+                    {Array.from({ length: startOfMonth(new Date(selectedYear, selectedMonth)).getDay() }).map((_, i) => (
+                      <div key={`pad-${i}`} className="h-8 md:h-10"></div>
+                    ))}
                     {daysInMonth.map(day => {
                       const status = getStatus(emp.id, day);
                       return (
-                        <td 
-                          key={day.toString()} 
-                          className={`p-1 border-b border-r border-slate-100 text-center ${isToday(day) ? 'bg-blue-50/20' : ''}`}
+                        <button
+                          key={day.toString()}
+                          onClick={() => setActivePicker({ empId: emp.id, date: day.toISOString() })}
+                          className={`h-9 md:h-11 rounded-lg flex flex-col items-center justify-center transition-all relative ${
+                            status 
+                              ? `${STATUS_COLORS[status as keyof typeof STATUS_COLORS]} shadow-sm` 
+                              : isSunday(day) ? 'bg-rose-50 text-rose-300' : 'bg-white text-slate-400 hover:bg-blue-50 hover:text-blue-500'
+                          } ${isToday(day) ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
                         >
-                          <div className="relative flex justify-center items-center h-full">
-                            <button
-                              onClick={() => setActivePicker(activePicker?.empId === emp.id && activePicker?.date === day.toISOString() ? null : { empId: emp.id, date: day.toISOString() })}
-                              className={`w-9 h-9 rounded-xl text-[10px] font-black transition-all flex items-center justify-center border-2 ${
-                                status 
-                                  ? `${STATUS_COLORS[status as keyof typeof STATUS_COLORS]} border-transparent shadow-sm` 
-                                  : 'bg-white border-slate-100 text-slate-300 hover:border-blue-200 hover:text-blue-400'
-                              }`}
-                            >
-                              {status ? status[0] : '-'}
-                            </button>
-
-                            {/* Status Picker Popover */}
-                            {activePicker?.empId === emp.id && activePicker?.date === day.toISOString() && (
-                              <>
-                                <div className="fixed inset-0 z-40" onClick={() => setActivePicker(null)}></div>
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 flex flex-col gap-1 min-w-[120px] animate-in fade-in slide-in-from-top-2 duration-200">
-                                  {[
-                                    { id: 'PRESENT', label: 'Present', color: 'bg-emerald-500', icon: FiCheckCircle },
-                                    { id: 'ABSENT', label: 'Absent', color: 'bg-rose-500', icon: FiXCircle },
-                                    { id: 'LEAVE', label: 'Leave', color: 'bg-blue-500', icon: FiInfo },
-                                    { id: 'HOLIDAY', label: 'Holiday', color: 'bg-amber-400', icon: FiCalendar },
-                                  ].map(opt => (
-                                    <button
-                                      key={opt.id}
-                                      onClick={() => {
-                                        handleStatusChange(emp.id, day, opt.id);
-                                        setActivePicker(null);
-                                      }}
-                                      className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 rounded-xl transition-all group"
-                                    >
-                                      <div className={`w-6 h-6 rounded-lg ${opt.color} flex items-center justify-center text-white`}>
-                                        <opt.icon className="w-3.5 h-3.5" />
-                                      </div>
-                                      <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900">{opt.label}</span>
-                                    </button>
-                                  ))}
-                                  <div className="h-px bg-slate-50 my-1"></div>
-                                  <button
-                                    onClick={() => {
-                                      handleStatusChange(emp.id, day, '');
-                                      setActivePicker(null);
-                                    }}
-                                    className="w-full text-[10px] font-black text-slate-400 uppercase tracking-widest py-2 hover:text-slate-600"
-                                  >
-                                    Clear
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </td>
+                          <span className="text-[10px] font-black">{format(day, 'd')}</span>
+                          {status && <span className="text-[7px] font-bold leading-none opacity-80">{status[0]}</span>}
+                        </button>
                       );
                     })}
-                    <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-emerald-600 bg-emerald-50/20">{stats.present}</td>
-                    <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-rose-600 bg-rose-50/20">{stats.absent}</td>
-                    <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-blue-600 bg-blue-50/20">{stats.leave}</td>
-                    <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-amber-600 bg-amber-50/20">{stats.holiday}</td>
-                    <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-slate-800 bg-slate-50">{stats.percentage}%</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-2 mt-4">
+                    <div className="bg-emerald-50 rounded-xl p-2 text-center">
+                      <p className="text-[8px] font-black text-emerald-400 uppercase">Pres</p>
+                      <p className="text-xs font-black text-emerald-600">{stats.present}</p>
+                    </div>
+                    <div className="bg-rose-50 rounded-xl p-2 text-center">
+                      <p className="text-[8px] font-black text-rose-400 uppercase">Abs</p>
+                      <p className="text-xs font-black text-rose-600">{stats.absent}</p>
+                    </div>
+                    <div className="bg-blue-50 rounded-xl p-2 text-center">
+                      <p className="text-[8px] font-black text-blue-400 uppercase">Leave</p>
+                      <p className="text-xs font-black text-blue-600">{stats.leave}</p>
+                    </div>
+                    <div className="bg-amber-50 rounded-xl p-2 text-center">
+                      <p className="text-[8px] font-black text-amber-400 uppercase">Hol</p>
+                      <p className="text-xs font-black text-amber-600">{stats.holiday}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
