@@ -8,7 +8,22 @@ import {
   FiClipboard, FiMapPin, FiLogOut, FiSettings, FiActivity, FiCalendar, FiUser, FiMenu, FiX
 } from 'react-icons/fi';
 
-// ... (keep adminLinks and employeeLinks as is)
+const adminLinks = [
+  { name: 'Dashboard', href: '/admin', icon: FiHome },
+  { name: 'Live Tracking', href: '/admin/tracking', icon: FiMapPin },
+  { name: 'Field Updates', href: '/admin/social', icon: FiActivity },
+  { name: 'Installations', href: '/admin/machines', icon: FiPackage },
+  { name: 'Inventory', href: '/admin/stock', icon: FiTruck },
+  { name: 'Attendance', href: '/admin/attendance', icon: FiClipboard },
+  { name: 'Employees', href: '/admin/employees', icon: FiUsers },
+];
+
+const employeeLinks = [
+  { name: 'My Attendance', href: '/employee/attendance', icon: FiClipboard },
+  { name: 'Field Updates', href: '/admin/social', icon: FiActivity },
+  { name: 'My Tickets', href: '/employee/tickets', icon: FiPackage },
+  { name: 'Tracking', href: '/employee/tracking', icon: FiMapPin },
+];
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -143,7 +158,5 @@ export default function Sidebar() {
         </div>
       </div>
     </>
-  );
-}
   );
 }
