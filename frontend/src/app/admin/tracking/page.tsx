@@ -31,6 +31,7 @@ export default function AdminTrackingPage() {
             lat: emp.latitude,
             lng: emp.longitude,
             isOnDuty: emp.isOnDuty,
+            isStale: emp.isStale,
             address: emp.address || 'Locating...',
             batteryLevel: emp.batteryLevel,
             timestamp: emp.timestamp
@@ -73,8 +74,8 @@ export default function AdminTrackingPage() {
     };
   }, []);
 
-    const trackingCount = locations.filter(l => l.lat !== null).length;
-    const inactiveCount = locations.filter(l => l.isOnDuty && !l.lat).length;
+    const trackingCount = locations.filter(l => l.lat !== null && !l.isStale).length;
+    const inactiveCount = locations.filter(l => l.isOnDuty && l.isStale).length;
 
     return (
       <div className="flex flex-col h-[calc(100vh-6rem)] space-y-4">
@@ -131,14 +132,14 @@ export default function AdminTrackingPage() {
                       )}
                     </div>
 
-                    {!loc.lat && loc.isOnDuty ? (
+                    {loc.isStale && loc.isOnDuty ? (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 animate-pulse">
                           <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
-                          <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Connection Lost / GPS Off</span>
+                          <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Location Stale (Lost Connection)</span>
                         </div>
-                        <p className="text-[11px] text-rose-400 bg-rose-50 p-2 rounded-lg border border-rose-100 flex items-center gap-1">
-                          ⚠️ Unable to track this device
+                        <p className="text-[11px] text-slate-400 bg-slate-50 p-2 rounded-lg border border-slate-100 italic">
+                          Last seen: {loc.address || 'Unknown'}
                         </p>
                       </div>
                     ) : !loc.lat ? (

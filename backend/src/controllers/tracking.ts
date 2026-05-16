@@ -114,11 +114,11 @@ export const getActiveLocations = async (req: Request, res: Response): Promise<v
       const lastLog = emp.gpsLogs.length > 0 ? emp.gpsLogs[0] : null;
       const isOnDuty = emp.attendance.length > 0;
       
-      // Check if location is stale (older than 10 minutes)
+      // Check if location is stale (older than 5 minutes)
       let isStale = false;
       if (lastLog) {
         const diffMinutes = (now.getTime() - new Date(lastLog.timestamp).getTime()) / (1000 * 60);
-        if (diffMinutes > 10) isStale = true;
+        if (diffMinutes > 5) isStale = true;
       }
 
       return {
@@ -128,10 +128,11 @@ export const getActiveLocations = async (req: Request, res: Response): Promise<v
         email: emp.user.email,
         role: emp.user.role,
         isOnDuty: isOnDuty,
-        // Only return location if it's fresh (within 10 mins)
-        latitude: (lastLog && !isStale) ? lastLog.latitude : null,
-        longitude: (lastLog && !isStale) ? lastLog.longitude : null,
-        address: (lastLog && !isStale) ? lastLog.address : (isStale ? 'Location Stale' : null),
+        isStale: isStale,
+        // Always return last known location if they are on duty
+        latitude: lastLog ? lastLog.latitude : null,
+        longitude: lastLog ? lastLog.longitude : null,
+        address: lastLog ? lastLog.address : null,
         batteryLevel: lastLog ? lastLog.batteryLevel : null,
         timestamp: lastLog ? lastLog.timestamp : null
       };

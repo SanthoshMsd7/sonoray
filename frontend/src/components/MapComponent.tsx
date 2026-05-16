@@ -18,8 +18,8 @@ export interface LocationData {
   id: string;
   lat: number | null;
   lng: number | null;
-  name: string;
   isOnDuty?: boolean;
+  isStale?: boolean;
   batteryLevel?: number | null;
   address?: string | null;
   timestamp?: string | null;
@@ -67,8 +67,22 @@ export default function MapComponent({ locations, center = [0, 0], zoom = 2 }: M
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {locations.filter(l => l.lat !== null && l.lng !== null).map((loc) => (
-          <Marker key={loc.id} position={[loc.lat!, loc.lng!]}>
+        {locations.filter(l => l.lat !== null && l.lng !== null).map((loc) => {
+          const redIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          });
+
+          return (
+            <Marker 
+              key={loc.id} 
+              position={[loc.lat!, loc.lng!]} 
+              icon={loc.isStale ? redIcon : new L.Icon.Default()}
+            >
             <Popup>
               <div className="p-1">
                 <p className="font-bold text-slate-800">{loc.name}</p>
