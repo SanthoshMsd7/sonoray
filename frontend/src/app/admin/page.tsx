@@ -13,7 +13,6 @@ interface DashboardStats {
   pendingBreakdowns: number;
   presentToday: number;
   lowStockCount: number;
-  totalRevenue: number;
 }
 
 interface AttendanceStats {
@@ -115,16 +114,6 @@ export default function AdminDashboard() {
       shadow: 'rgba(245,158,11,0.3)',
       change: 'Below threshold',
       up: false,
-    },
-    {
-      title: 'Total Revenue',
-      value: stats?.totalRevenue ? `₹${(stats.totalRevenue / 100000).toFixed(1)}L` : '₹0',
-      icon: FiTrendingUp,
-      gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-      shadow: 'rgba(6,182,212,0.3)',
-      change: 'Lifetime installs',
-      up: true,
-      isText: true,
     },
   ];
 
