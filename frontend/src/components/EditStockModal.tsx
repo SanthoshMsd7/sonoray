@@ -102,6 +102,8 @@ export default function EditStockModal({ isOpen, onClose, onSuccess, item }: Edi
                 />
               </div>
             </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase ml-1">Make / Brand</label>
