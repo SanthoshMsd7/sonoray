@@ -191,8 +191,10 @@ export default function StockManagement() {
             </button>
           )}
         </div>
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
+            {/* ... keep table content same ... */}
             <thead className="bg-slate-50/50 text-slate-500 text-[10px] uppercase tracking-wider font-bold">
               <tr>
                 <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('machineName')}>Equipment Details</th>
@@ -206,14 +208,14 @@ export default function StockManagement() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                <tr><td colSpan={7} className="px-6 py-12 text-center text-slate-400">
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-sm font-medium">Loading inventory...</span>
                   </div>
                 </td></tr>
               ) : filteredStock.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-medium">No items match your search.</td></tr>
+                <tr><td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-medium">No items match your search.</td></tr>
               ) : (
                 filteredStock.map((s) => (
                   <tr key={s.id} className="hover:bg-blue-50/30 transition-all">
@@ -249,20 +251,8 @@ export default function StockManagement() {
                     </td>
                     <td className="px-6 py-4 text-right no-print">
                       <div className="flex justify-end gap-1">
-                        <button 
-                          onClick={() => handleEdit(s)}
-                          className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-all"
-                          title="Edit Item"
-                        >
-                          <FiEdit2 className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(s.id)}
-                          className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-all"
-                          title="Delete Item"
-                        >
-                          <FiTrash2 className="w-4 h-4" />
-                        </button>
+                        <button onClick={() => handleEdit(s)} className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-all"><FiEdit2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(s.id)} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-all"><FiTrash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>
@@ -270,6 +260,45 @@ export default function StockManagement() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {loading ? (
+            <div className="p-12 text-center text-slate-400">Loading...</div>
+          ) : filteredStock.length === 0 ? (
+            <div className="p-12 text-center text-slate-400">No items found.</div>
+          ) : (
+            filteredStock.map((s) => (
+              <div key={s.id} className="p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-slate-800">{s.machineName}</span>
+                    <span className="text-[10px] text-slate-400">{s.make} | {s.modelNumber}</span>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
+                    s.quantity > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                  }`}>
+                    {s.quantity > 0 ? 'In Stock' : 'Out'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <div className="flex flex-col">
+                    <span className="text-slate-400 uppercase font-bold text-[9px]">Warehouse</span>
+                    <span className="text-slate-600">{s.warehouseLocation}</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-slate-400 uppercase font-bold text-[9px]">Quantity</span>
+                    <span className={`font-bold ${s.quantity < 5 ? 'text-red-600' : 'text-slate-900'}`}>{s.quantity} units</span>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button onClick={() => handleEdit(s)} className="flex-1 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><FiEdit2 className="w-3 h-3" /> Edit</button>
+                  <button onClick={() => handleDelete(s.id)} className="flex-1 py-2 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold flex items-center justify-center gap-1"><FiTrash2 className="w-3 h-3" /> Delete</button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
