@@ -23,7 +23,7 @@ export const createStock = async (req: Request, res: Response): Promise<void> =>
       make, modelNumber, serialNumber, technicalSpecs
     } = req.body;
 
-    const newStock = await prisma.stock.create({
+    const newStock = await (prisma.stock as any).create({
       data: {
         stockId,
         machineName,
@@ -57,7 +57,7 @@ export const updateStock = async (req: Request, res: Response): Promise<void> =>
       make, modelNumber, serialNumber, technicalSpecs
     } = req.body;
 
-    const updatedStock = await prisma.stock.update({
+    const updatedStock = await (prisma.stock as any).update({
       where: { id },
       data: {
         stockId,
