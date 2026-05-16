@@ -141,24 +141,24 @@ export default function MachineManagement() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Machine Installations</h1>
-          <p className="text-slate-500 mt-1">Track and manage all ultrasound machines deployed in hospitals.</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Installations</h1>
+          <p className="text-slate-500 mt-1 text-sm md:text-base">Track and manage all ultrasound machines deployed.</p>
         </div>
-        <div className="flex gap-3 no-print">
+        <div className="flex flex-wrap gap-2 no-print w-full sm:w-auto">
           <button 
             onClick={() => window.print()}
-            className="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl flex items-center gap-2 hover:bg-slate-50 transition-all font-bold"
+            className="flex-1 sm:flex-none px-3 md:px-5 py-2 md:py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-all font-bold text-xs md:text-sm"
           >
-            <FiPrinter /> Print Report
+            <FiPrinter className="w-4 h-4" /> <span className="hidden xs:inline">Print Report</span>
           </button>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md shadow-blue-200 font-bold"
+            className="flex-1 sm:flex-none bg-blue-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-md shadow-blue-200 font-bold text-xs md:text-sm"
           >
-            <FiPlus className="stroke-[3px]" /> New Installation
+            <FiPlus className="stroke-[3px] w-4 h-4" /> New Installation
           </button>
         </div>
       </div>

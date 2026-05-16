@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import MarkAttendanceModal from '@/components/MarkAttendanceModal';
 import { 
   FiPackage, FiAlertCircle, FiClock, FiUsers, 
   FiActivity, FiMapPin, FiCheckCircle,
-  FiBarChart2, FiArrowUp, FiArrowDown, FiCalendar
+  FiBarChart2, FiArrowUp, FiArrowDown, FiCalendar, FiPlus
 } from 'react-icons/fi';
 
 interface DashboardStats {
@@ -36,8 +37,10 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [attStats, setAttStats] = useState<AttendanceStats | null>(null);
   const [recentEmployees, setRecentEmployees] = useState<Employee[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [time, setTime] = useState(new Date());
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAll();
@@ -61,6 +64,7 @@ export default function AdminDashboard() {
       if (attRes.ok) setAttStats(await attRes.json());
       if (empRes.ok) {
         const empData: Employee[] = await empRes.json();
+        setEmployees(empData);
         setRecentEmployees(empData.slice(0, 6));
       }
     } catch (error) {
@@ -182,15 +186,23 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Panel 1: Today's Attendance Breakdown */}
         <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
               <h3 className="text-lg font-black text-slate-900 tracking-tight">Today&apos;s Attendance</h3>
               <p className="text-slate-400 text-xs font-medium mt-1">
                 {time.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
             </div>
-            <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-xs font-black tracking-tight">
-              {attendanceRate}% rate
+            <div className="flex gap-2 w-full sm:w-auto">
+              <button 
+                onClick={() => setIsManualModalOpen(true)}
+                className="flex-1 sm:flex-none bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black shadow-lg shadow-blue-100 transition-transform active:scale-95 flex items-center justify-center gap-2"
+              >
+                <FiPlus className="w-4 h-4" /> Mark Entry
+              </button>
+              <div className="hidden sm:flex bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-xs font-black tracking-tight items-center">
+                {attendanceRate}% rate
+              </div>
             </div>
           </div>
 
@@ -292,6 +304,12 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+      <MarkAttendanceModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
+        onSuccess={fetchAll}
+        employees={employees}
+      />
     </div>
   );
 }

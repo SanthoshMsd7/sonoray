@@ -8,6 +8,7 @@ import {
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSunday, isToday, isSameDay } from 'date-fns';
 import { exportToExcel, exportToPDF } from '../../../../utils/export';
 import BulkHolidayModal from '../../../../components/BulkHolidayModal';
+import MarkAttendanceModal from '../../../../components/MarkAttendanceModal';
 import AttendanceAnalytics from '../../../../components/AttendanceAnalytics';
 import { useSearchParams, useParams, useRouter } from 'next/navigation';
 import { toLocalISOString, isSameDayLocal } from '../../../../utils/dateHelpers';
@@ -62,6 +63,7 @@ function AdminAttendanceContent() {
   const [search, setSearch] = useState('');
   const [selectedDept, setSelectedDept] = useState('All');
   const [isHolidayModalOpen, setIsHolidayModalOpen] = useState(false);
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [activePicker, setActivePicker] = useState<{ empId: string, date: string } | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -236,30 +238,30 @@ function AdminAttendanceContent() {
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* Top Header */}
-        <div className="p-6 bg-white border-b border-slate-100 shrink-0">
-          <div className="flex justify-between items-center mb-6">
+        <div className="p-4 md:p-6 bg-white border-b border-slate-100 shrink-0">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
-              <h1 className="text-2xl font-black text-slate-800 tracking-tight">Attendance Management</h1>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Year: {selectedYear}</p>
+              <h1 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">Attendance</h1>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Year: {selectedYear}</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+              <button 
+                onClick={() => setIsManualModalOpen(true)}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
+              >
+                <FiPlus /> <span className="xs:inline">Mark Entry</span>
+              </button>
               <button 
                 onClick={() => setIsHolidayModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 text-amber-600 rounded-xl text-sm font-bold hover:bg-amber-100 transition-all"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-amber-50 text-amber-600 rounded-xl text-xs font-bold hover:bg-amber-100 transition-all"
               >
-                <FiPlus /> Mark Holiday
+                <FiPlus /> <span className="xs:inline">Holiday</span>
               </button>
               <button 
                 onClick={handleExportExcel}
-                className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-100 transition-all"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-100 transition-all"
               >
-                <FiDownload /> Export Excel
-              </button>
-              <button 
-                onClick={handleExportPDF}
-                className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-black transition-all shadow-lg shadow-slate-200"
-              >
-                <FiPrinter /> Print PDF
+                <FiDownload /> <span className="hidden md:inline">Export</span>
               </button>
             </div>
           </div>
@@ -452,6 +454,13 @@ function AdminAttendanceContent() {
         isOpen={isHolidayModalOpen}
         onClose={() => setIsHolidayModalOpen(false)}
         onSuccess={fetchData}
+      />
+
+      <MarkAttendanceModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
+        onSuccess={fetchData}
+        employees={employees}
       />
     </div>
   );
