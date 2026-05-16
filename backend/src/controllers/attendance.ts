@@ -78,29 +78,20 @@ export const punchOut = async (req: any, res: Response): Promise<void> => {
       return;
     }
 
-    const { date: providedDate } = req.body;
-    const now = new Date();
-    
-    let today: Date;
-    if (providedDate && typeof providedDate === 'string' && providedDate.includes('-')) {
-      const parts = providedDate.split('T')[0].split('-').map(Number);
-      today = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
-    } else {
-      today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-    }
-    today.setUTCHours(0, 0, 0, 0);
-
-    const attendance = await prisma.attendance.findUnique({
+    // Find the most recent punch-in that doesn't have a punch-out yet
+    const attendance = await prisma.attendance.findFirst({
       where: {
-        employeeId_date: {
-          employeeId,
-          date: today
-        }
+        employeeId,
+        status: 'PRESENT',
+        punchOutTime: null
+      },
+      orderBy: {
+        date: 'desc'
       }
     });
 
-    if (!attendance || !attendance.punchInTime) {
-      res.status(400).json({ message: 'No active punch-in found for today' });
+    if (!attendance) {
+      res.status(400).json({ message: 'No active punch-in found' });
       return;
     }
 
