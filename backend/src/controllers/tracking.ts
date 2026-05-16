@@ -110,19 +110,32 @@ export const getActiveLocations = async (req: Request, res: Response): Promise<v
       }
     });
 
-    const activeLocations = employees.map(emp => ({
-      employeeId: emp.id,
-      firstName: emp.firstName,
-      lastName: emp.lastName,
-      email: emp.user.email,
-      role: emp.user.role,
-      isOnDuty: emp.attendance.length > 0,
-      latitude: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].latitude : null,
-      longitude: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].longitude : null,
-      address: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].address : null,
-      batteryLevel: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].batteryLevel : null,
-      timestamp: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].timestamp : null
-    }));
+    const activeLocations = employees.map(emp => {
+      const lastLog = emp.gpsLogs.length > 0 ? emp.gpsLogs[0] : null;
+      const isOnDuty = emp.attendance.length > 0;
+      
+      // Check if location is stale (older than 10 minutes)
+      let isStale = false;
+      if (lastLog) {
+        const diffMinutes = (now.getTime() - new Date(lastLog.timestamp).getTime()) / (1000 * 60);
+        if (diffMinutes > 10) isStale = true;
+      }
+
+      return {
+        employeeId: emp.id,
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+        email: emp.user.email,
+        role: emp.user.role,
+        isOnDuty: isOnDuty,
+        // Only return location if it's fresh (within 10 mins)
+        latitude: (lastLog && !isStale) ? lastLog.latitude : null,
+        longitude: (lastLog && !isStale) ? lastLog.longitude : null,
+        address: (lastLog && !isStale) ? lastLog.address : (isStale ? 'Location Stale' : null),
+        batteryLevel: lastLog ? lastLog.batteryLevel : null,
+        timestamp: lastLog ? lastLog.timestamp : null
+      };
+    });
 
     res.json(activeLocations);
   } catch (error) {
