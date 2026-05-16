@@ -1,12 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FiX, FiSave, FiUser, FiMail, FiLock, FiShield, FiPhone, FiBriefcase } from 'react-icons/fi';
-
-interface Department {
-  id: string;
-  name: string;
-}
+import { FiX, FiSave, FiUser, FiMail, FiLock, FiShield, FiPhone } from 'react-icons/fi';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -16,7 +11,6 @@ interface AddEmployeeModalProps {
 
 export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmployeeModalProps) {
   const [loading, setLoading] = useState(false);
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -24,30 +18,9 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
     password: '',
     role: 'FIELD_EMPLOYEE',
     phone: '',
-    departmentId: '',
     designation: ''
   });
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchDepartments();
-    }
-  }, [isOpen]);
-
-  const fetchDepartments = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/departments`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setDepartments(data);
-      }
-    } catch (error) {
-      console.error('Fetch departments error:', error);
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -59,7 +32,6 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
       // Convert empty strings to null for optional FK fields
       const payload = {
         ...formData,
-        departmentId: formData.departmentId || null,
         designation: formData.designation || null,
         phone: formData.phone || null,
       };
@@ -189,33 +161,15 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Department</label>
-              <div className="relative">
-                <FiBriefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <select 
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none"
-                  value={formData.departmentId}
-                  onChange={(e) => setFormData({...formData, departmentId: e.target.value})}
-                >
-                  <option value="">Select Department</option>
-                  {departments.map(dept => (
-                    <option key={dept.id} value={dept.id}>{dept.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Designation</label>
-              <input 
-                type="text" 
-                placeholder="e.g. Senior Engineer"
-                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
-                value={formData.designation}
-                onChange={(e) => setFormData({...formData, designation: e.target.value})}
-              />
-            </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Designation</label>
+            <input 
+              type="text" 
+              placeholder="e.g. Senior Engineer"
+              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+              value={formData.designation}
+              onChange={(e) => setFormData({...formData, designation: e.target.value})}
+            />
           </div>
 
           <div className="pt-6 flex gap-3">
