@@ -30,6 +30,7 @@ export default function AdminTrackingPage() {
             name: `${emp.firstName} ${emp.lastName}`,
             lat: emp.latitude,
             lng: emp.longitude,
+            isOnDuty: emp.isOnDuty,
             address: emp.address || 'Locating...',
             batteryLevel: emp.batteryLevel,
             timestamp: emp.timestamp
@@ -99,24 +100,35 @@ export default function AdminTrackingPage() {
                 {locations.map((loc) => (
                   <div 
                     key={loc.id} 
-                    onClick={() => setSelectedId(loc.id)}
+                    onClick={() => loc.lat && setSelectedId(loc.id)}
                     className={`p-4 cursor-pointer transition-all hover:bg-blue-50/50 ${selectedId === loc.id ? 'bg-blue-50 border-l-4 border-blue-600' : ''}`}
                   >
                     <div className="flex justify-between items-start mb-1">
                       <p className="font-bold text-slate-800 text-sm">{loc.name}</p>
                       <span className="text-[10px] text-slate-400 font-medium">
-                        {loc.timestamp && new Date(loc.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {loc.timestamp ? new Date(loc.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No Data'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 mb-2">
-                      <div className="flex items-center gap-1">
+                    
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
                         <div className={`w-1.5 h-1.5 rounded-full ${loc.batteryLevel && loc.batteryLevel > 20 ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
                         {loc.batteryLevel || 0}% Battery
                       </div>
+                      {loc.isOnDuty && (
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-extrabold uppercase">On Duty</span>
+                      )}
                     </div>
-                    <p className="text-[11px] text-slate-400 line-clamp-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                       {loc.address}
-                    </p>
+
+                    {!loc.lat && loc.isOnDuty ? (
+                      <p className="text-[11px] text-rose-500 font-bold bg-rose-50 p-2 rounded-lg border border-rose-100 flex items-center gap-1">
+                        ⚠️ Location Turned Off
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-slate-400 line-clamp-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                        {loc.address || 'Locating...'}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

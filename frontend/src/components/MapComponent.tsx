@@ -16,12 +16,13 @@ if (typeof window !== 'undefined') {
 
 export interface LocationData {
   id: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   name: string;
-  batteryLevel?: number;
+  isOnDuty?: boolean;
+  batteryLevel?: number | null;
   address?: string | null;
-  timestamp?: string;
+  timestamp?: string | null;
 }
 
 interface MapComponentProps {
@@ -47,7 +48,8 @@ export default function MapComponent({ locations, center = [0, 0], zoom = 2 }: M
   }, []);
 
   // Auto-center based on first location if default is used
-  const mapCenter: [number, number] = locations.length > 0 && center[0] === 0 ? [locations[0].lat, locations[0].lng] : center;
+  const validLocations = locations.filter(l => l.lat !== null && l.lng !== null);
+  const mapCenter: [number, number] = validLocations.length > 0 && center[0] === 0 ? [validLocations[0].lat!, validLocations[0].lng!] : center;
   const mapZoom = locations.length > 0 && zoom === 2 ? 14 : zoom;
 
   if (!mounted) return <div style={{ height: '100%', width: '100%', background: '#f1f5f9' }} />;
@@ -65,8 +67,8 @@ export default function MapComponent({ locations, center = [0, 0], zoom = 2 }: M
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {locations.map((loc) => (
-          <Marker key={loc.id} position={[loc.lat, loc.lng]}>
+        {locations.filter(l => l.lat !== null && l.lng !== null).map((loc) => (
+          <Marker key={loc.id} position={[loc.lat!, loc.lng!]}>
             <Popup>
               <div className="p-1">
                 <p className="font-bold text-slate-800">{loc.name}</p>

@@ -84,40 +84,45 @@ export const updateLocation = async (req: Request, res: Response): Promise<void>
 };
 
 // GET /api/tracking/active
-// For simplicity, we fetch the latest log for each employee from today.
 export const getActiveLocations = async (req: Request, res: Response): Promise<void> => {
   try {
-    // In a real production system, you might want a "LatestLocation" table or use Redis.
-    // Here we query the latest GpsLog per employee.
+    const now = new Date();
+    const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    today.setUTCHours(0, 0, 0, 0);
+
     const employees = await prisma.employee.findMany({
       where: {
-        user: {
-          isActive: true
-        }
+        user: { isActive: true }
       },
       include: {
         user: { select: { email: true, role: true } },
         gpsLogs: {
           orderBy: { timestamp: 'desc' },
           take: 1
+        },
+        attendance: {
+          where: {
+            date: today,
+            status: 'PRESENT',
+            punchOutTime: null
+          }
         }
       }
     });
 
-    const activeLocations = employees
-      .filter(emp => emp.gpsLogs.length > 0)
-      .map(emp => ({
-        employeeId: emp.id,
-        firstName: emp.firstName,
-        lastName: emp.lastName,
-        email: emp.user.email,
-        role: emp.user.role,
-        latitude: emp.gpsLogs[0].latitude,
-        longitude: emp.gpsLogs[0].longitude,
-        address: emp.gpsLogs[0].address,
-        batteryLevel: emp.gpsLogs[0].batteryLevel,
-        timestamp: emp.gpsLogs[0].timestamp
-      }));
+    const activeLocations = employees.map(emp => ({
+      employeeId: emp.id,
+      firstName: emp.firstName,
+      lastName: emp.lastName,
+      email: emp.user.email,
+      role: emp.user.role,
+      isOnDuty: emp.attendance.length > 0,
+      latitude: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].latitude : null,
+      longitude: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].longitude : null,
+      address: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].address : null,
+      batteryLevel: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].batteryLevel : null,
+      timestamp: emp.gpsLogs.length > 0 ? emp.gpsLogs[0].timestamp : null
+    }));
 
     res.json(activeLocations);
   } catch (error) {
