@@ -7,7 +7,7 @@ export const getStock = async (req: Request, res: Response): Promise<void> => {
   try {
     const stock = await prisma.stock.findMany({
       orderBy: { createdAt: 'desc' }
-    });
+    }) as any[];
 
     // Smart Fill: If data is missing Make/SN (e.g. after Excel import), fill it
     const needsFilling = stock.filter(s => !s.make || !s.serialNumber);
