@@ -19,7 +19,11 @@ export default function EditStockModal({ isOpen, onClose, onSuccess, item }: Edi
     quantity: '0',
     warehouseLocation: '',
     stockStatus: 'IN_STOCK',
-    unitPrice: '0'
+    unitPrice: '0',
+    make: '',
+    modelNumber: '',
+    serialNumber: '',
+    technicalSpecs: ''
   });
 
   useEffect(() => {
@@ -31,7 +35,11 @@ export default function EditStockModal({ isOpen, onClose, onSuccess, item }: Edi
         quantity: item.quantity?.toString() || '0',
         warehouseLocation: item.warehouseLocation || '',
         stockStatus: item.stockStatus || 'IN_STOCK',
-        unitPrice: item.unitPrice?.toString() || '0'
+        unitPrice: item.unitPrice?.toString() || '0',
+        make: item.make || '',
+        modelNumber: item.modelNumber || '',
+        serialNumber: item.serialNumber || '',
+        technicalSpecs: item.technicalSpecs || ''
       });
     }
   }, [item]);
@@ -94,6 +102,40 @@ export default function EditStockModal({ isOpen, onClose, onSuccess, item }: Edi
                 />
               </div>
             </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Make / Brand</label>
+              <input 
+                type="text" 
+                placeholder="Brand name"
+                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                value={formData.make}
+                onChange={(e) => setFormData({...formData, make: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Model Number</label>
+              <input 
+                type="text" 
+                placeholder="Model code"
+                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                value={formData.modelNumber}
+                onChange={(e) => setFormData({...formData, modelNumber: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Serial Number (SN)</label>
+              <input 
+                type="text" 
+                placeholder="Serial No."
+                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-mono"
+                value={formData.serialNumber}
+                onChange={(e) => setFormData({...formData, serialNumber: e.target.value})}
+              />
+            </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase ml-1">Category</label>
               <div className="relative">
@@ -116,9 +158,20 @@ export default function EditStockModal({ isOpen, onClose, onSuccess, item }: Edi
             <input 
               required
               type="text" 
-              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-bold"
               value={formData.machineName}
               onChange={(e) => setFormData({...formData, machineName: e.target.value})}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Technical Specs / Info</label>
+            <textarea 
+              placeholder="Other information..."
+              rows={2}
+              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none resize-none italic"
+              value={formData.technicalSpecs}
+              onChange={(e) => setFormData({...formData, technicalSpecs: e.target.value})}
             />
           </div>
 

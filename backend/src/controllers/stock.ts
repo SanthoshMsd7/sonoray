@@ -17,7 +17,11 @@ export const getStock = async (req: Request, res: Response): Promise<void> => {
 
 export const createStock = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { stockId, machineName, category, quantity, warehouseLocation, supplierName, purchaseDate, unitPrice, stockStatus } = req.body;
+    const { 
+      stockId, machineName, category, quantity, warehouseLocation, 
+      supplierName, purchaseDate, unitPrice, stockStatus,
+      make, modelNumber, serialNumber, technicalSpecs
+    } = req.body;
 
     const newStock = await prisma.stock.create({
       data: {
@@ -29,7 +33,11 @@ export const createStock = async (req: Request, res: Response): Promise<void> =>
         supplierName,
         purchaseDate: purchaseDate ? new Date(purchaseDate) : null,
         unitPrice: unitPrice ? parseFloat(unitPrice.toString()) : 0,
-        stockStatus: stockStatus || 'IN_STOCK'
+        stockStatus: stockStatus || 'IN_STOCK',
+        make,
+        modelNumber,
+        serialNumber,
+        technicalSpecs
       }
     });
 
@@ -43,7 +51,11 @@ export const createStock = async (req: Request, res: Response): Promise<void> =>
 export const updateStock = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
-    const { stockId, machineName, category, quantity, warehouseLocation, supplierName, purchaseDate, unitPrice, stockStatus } = req.body;
+    const { 
+      stockId, machineName, category, quantity, warehouseLocation, 
+      supplierName, purchaseDate, unitPrice, stockStatus,
+      make, modelNumber, serialNumber, technicalSpecs
+    } = req.body;
 
     const updatedStock = await prisma.stock.update({
       where: { id },
@@ -56,7 +68,11 @@ export const updateStock = async (req: Request, res: Response): Promise<void> =>
         supplierName,
         purchaseDate: purchaseDate ? new Date(purchaseDate) : null,
         unitPrice: unitPrice ? parseFloat(unitPrice.toString()) : 0,
-        stockStatus: stockStatus || 'IN_STOCK'
+        stockStatus: stockStatus || 'IN_STOCK',
+        make,
+        modelNumber,
+        serialNumber,
+        technicalSpecs
       }
     });
 

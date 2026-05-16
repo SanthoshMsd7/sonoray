@@ -297,6 +297,9 @@ model Stock {
   id                String    @id @default(uuid())
   stockId           String?   @map("stock_id")
   machineName       String?   @map("machine_name")
+  make              String?   @map("make")           // Brand/Manufacturer
+  modelNumber       String?   @map("model_number")   // Model No
+  serialNumber      String?   @map("serial_number")  // SN No
   category          String?   @map("category")
   quantity          Int?      @map("quantity")
   warehouseLocation String?   @map("warehouse_location")
@@ -304,6 +307,7 @@ model Stock {
   supplierName      String?   @map("supplier_name")
   unitPrice         Float?    @map("unit_price")
   stockStatus       String?   @map("stock_status")
+  technicalSpecs    String?   @map("technical_specs") // Other medical info
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 

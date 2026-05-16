@@ -8,6 +8,9 @@ import { FiPlus, FiSearch, FiAlertTriangle, FiArrowUpRight, FiArrowDownRight, Fi
 interface StockItem {
   id: string;
   machineName: string;
+  make?: string;
+  modelNumber?: string;
+  serialNumber?: string;
   category: string;
   quantity: number;
   warehouseLocation: string;
@@ -37,6 +40,9 @@ export default function StockManagement() {
     if (searchQuery) {
       result = result.filter(item => 
         (item.machineName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (item.make?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (item.modelNumber?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (item.serialNumber?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
         (item.category?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
         (item.warehouseLocation?.toLowerCase() || '').includes(searchQuery.toLowerCase())
       );
@@ -167,10 +173,11 @@ export default function StockManagement() {
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-50/50 text-slate-500 text-[10px] uppercase tracking-wider font-bold">
               <tr>
-                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('machineName')}>Item Name</th>
+                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('machineName')}>Equipment Details</th>
+                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('make')}>Make / Model</th>
                 <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('category')}>Category</th>
                 <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('warehouseLocation')}>Warehouse</th>
-                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('quantity')}>Quantity</th>
+                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('quantity')}>Qty</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 no-print text-right">Actions</th>
               </tr>
@@ -191,7 +198,16 @@ export default function StockManagement() {
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-800">{s.machineName}</span>
-                        <span className="text-[10px] text-slate-400 uppercase">ID: {s.id.slice(0, 8)}</span>
+                        <div className="flex gap-2 mt-0.5">
+                          {s.serialNumber && <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-mono">SN: {s.serialNumber}</span>}
+                          <span className="text-[9px] text-slate-400 uppercase">ID: {s.id.slice(0, 8)}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-slate-700">{s.make || 'N/A'}</span>
+                        <span className="text-[11px] text-slate-400">{s.modelNumber || 'Standard'}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-600">{s.category}</td>

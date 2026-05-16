@@ -17,7 +17,11 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
     category: 'MACHINE',
     quantity: '0',
     warehouseLocation: '',
-    stockStatus: 'IN_STOCK'
+    stockStatus: 'IN_STOCK',
+    make: '',
+    modelNumber: '',
+    serialNumber: '',
+    technicalSpecs: ''
   });
 
   if (!isOpen) return null;
@@ -79,6 +83,40 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
                 />
               </div>
             </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Make / Brand</label>
+              <input 
+                type="text" 
+                placeholder="e.g. Samsung, GE"
+                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                value={formData.make}
+                onChange={(e) => setFormData({...formData, make: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Model Number</label>
+              <input 
+                type="text" 
+                placeholder="e.g. V8-Prime"
+                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                value={formData.modelNumber}
+                onChange={(e) => setFormData({...formData, modelNumber: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Serial Number (SN)</label>
+              <input 
+                type="text" 
+                placeholder="e.g. SN-98234-X"
+                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-mono"
+                value={formData.serialNumber}
+                onChange={(e) => setFormData({...formData, serialNumber: e.target.value})}
+              />
+            </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase ml-1">Category</label>
               <div className="relative">
@@ -102,9 +140,20 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
               required
               type="text" 
               placeholder="e.g. Samsung V8 Ultrasound"
-              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-bold"
               value={formData.machineName}
               onChange={(e) => setFormData({...formData, machineName: e.target.value})}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Equipment Description / Other Info</label>
+            <textarea 
+              placeholder="Technical specifications or additional details..."
+              rows={2}
+              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none resize-none italic"
+              value={formData.technicalSpecs}
+              onChange={(e) => setFormData({...formData, technicalSpecs: e.target.value})}
             />
           </div>
 
