@@ -26,13 +26,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const employee = await prisma.employee.findUnique({ where: { userId: user.id } });
+    
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { 
+        userId: user.id, 
+        role: user.role,
+        employeeId: employee?.id || null
+      },
       process.env.JWT_SECRET || 'fallback_secret',
       { expiresIn: '1d' }
     );
-
-    const employee = await prisma.employee.findUnique({ where: { userId: user.id } });
 
     res.json({
       token,
@@ -76,5 +80,41 @@ export const createSuperAdmin = async (req: Request, res: Response): Promise<voi
     res.status(201).json({ message: 'Super admin created successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
+  }
+};
+
+// Get current logged in user
+export const getMe = async (req: any, res: Response): Promise<void> => {
+  try {
+    const userId = req.user.userId;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isActive: true,
+        employee: {
+          include: {
+            user: {
+              select: {
+                email: true,
+                role: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Get me error', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

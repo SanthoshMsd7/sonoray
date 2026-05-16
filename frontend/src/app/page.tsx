@@ -8,8 +8,15 @@ export default function Home() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      router.push('/admin');
+    const userJson = localStorage.getItem('user');
+    const user = userJson ? JSON.parse(userJson) : null;
+
+    if (token && user) {
+      if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/employee/attendance');
+      }
     } else {
       router.push('/login');
     }

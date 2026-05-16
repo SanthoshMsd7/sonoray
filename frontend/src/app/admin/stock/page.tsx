@@ -1,0 +1,236 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import AddStockModal from '../../../components/AddStockModal';
+import EditStockModal from '../../../components/EditStockModal';
+import { FiPlus, FiSearch, FiAlertTriangle, FiArrowUpRight, FiArrowDownRight, FiEdit2 } from 'react-icons/fi';
+
+interface StockItem {
+  id: string;
+  machineName: string;
+  category: string;
+  quantity: number;
+  warehouseLocation: string;
+  stockStatus: string;
+}
+
+export default function StockManagement() {
+  const [stock, setStock] = useState<StockItem[]>([]);
+  const [filteredStock, setFilteredStock] = useState<StockItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: keyof StockItem; direction: 'asc' | 'desc' } | null>(null);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'low'>('all');
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+
+  useEffect(() => {
+    fetchStock();
+  }, []);
+
+  useEffect(() => {
+    let result = [...stock];
+
+    // Search Logic (with Null Checks)
+    if (searchQuery) {
+      result = result.filter(item => 
+        (item.machineName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (item.category?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (item.warehouseLocation?.toLowerCase() || '').includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter Logic
+    if (activeFilter === 'low') {
+      result = result.filter(item => item.quantity < 5);
+    }
+
+    // Sort Logic
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    setFilteredStock(result);
+  }, [searchQuery, stock, sortConfig, activeFilter]);
+
+  const fetchStock = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stock`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setStock(data);
+      } else {
+        console.error('Expected array but got:', data);
+        setStock([]);
+      }
+    } catch (error) {
+      console.error('Error fetching stock:', error);
+      setStock([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSort = (key: keyof StockItem) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig?.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const handleEdit = (item: StockItem) => {
+    setSelectedItem(item);
+    setIsEditModalOpen(true);
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Machine & Spare Stock</h1>
+          <p className="text-slate-500 mt-1">Live inventory tracking for Ultrasound systems and parts.</p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2.5 border border-slate-200 rounded-xl flex items-center gap-2 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all font-medium"
+          >
+            <FiArrowUpRight className="text-blue-500" /> Incoming
+          </button>
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md shadow-blue-200 font-medium"
+          >
+            <FiPlus className="stroke-[3px]" /> Add Item
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div 
+          onClick={() => setActiveFilter('all')}
+          className={`cursor-pointer p-6 rounded-2xl border transition-all ${activeFilter === 'all' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white border-slate-100 shadow-sm hover:border-blue-200'}`}
+        >
+          <p className={`text-sm font-medium mb-1 ${activeFilter === 'all' ? 'text-blue-100' : 'text-slate-500'}`}>Total SKU Items</p>
+          <p className="text-3xl font-bold">{stock.length}</p>
+        </div>
+        <div 
+          onClick={() => setActiveFilter('low')}
+          className={`cursor-pointer p-6 rounded-2xl border transition-all ${activeFilter === 'low' ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200' : 'bg-white border-slate-100 shadow-sm hover:border-orange-200'}`}
+        >
+          <p className={`text-sm font-medium mb-1 ${activeFilter === 'low' ? 'text-orange-100' : 'text-slate-500'}`}>Low Stock Alerts</p>
+          <p className="text-3xl font-bold">{stock.filter(s => s.quantity < 5).length}</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-4 border-b border-slate-50 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="relative w-full max-w-md group">
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search by name, category or warehouse..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 transition-all outline-none" 
+            />
+          </div>
+          {activeFilter !== 'all' && (
+            <button 
+              onClick={() => setActiveFilter('all')}
+              className="text-sm text-blue-600 font-medium hover:underline"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-slate-50/50 text-slate-500 text-[10px] uppercase tracking-wider font-bold">
+              <tr>
+                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('machineName')}>Item Name</th>
+                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('category')}>Category</th>
+                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('warehouseLocation')}>Warehouse</th>
+                <th className="px-6 py-4 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort('quantity')}>Quantity</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm font-medium">Loading inventory...</span>
+                  </div>
+                </td></tr>
+              ) : filteredStock.length === 0 ? (
+                <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400 font-medium">No items match your search.</td></tr>
+              ) : (
+                filteredStock.map((s) => (
+                  <tr key={s.id} className="hover:bg-blue-50/30 transition-all">
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-800">{s.machineName}</span>
+                        <span className="text-[10px] text-slate-400 uppercase">ID: {s.id.slice(0, 8)}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-slate-600">{s.category}</td>
+                    <td className="px-6 py-4 text-sm text-slate-500">{s.warehouseLocation}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-bold text-lg ${s.quantity < 5 ? 'text-red-600' : 'text-slate-900'}`}>{s.quantity}</span>
+                        {s.quantity < 5 && <FiAlertTriangle className="text-orange-500 w-4 h-4 animate-pulse" />}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-tighter ${
+                        s.quantity > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                      }`}>
+                        {s.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button 
+                        onClick={() => handleEdit(s)}
+                        className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-all"
+                      >
+                        <FiEdit2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <AddStockModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchStock} 
+      />
+
+      <EditStockModal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        onSuccess={fetchStock} 
+        item={selectedItem}
+      />
+    </div>
+  );
+}

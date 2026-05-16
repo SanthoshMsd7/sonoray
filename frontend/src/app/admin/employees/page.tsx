@@ -1,135 +1,102 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { FiUserPlus, FiMail, FiPhone, FiTag, FiMoreVertical, FiSearch, FiCalendar, FiClock, FiTrash2 } from 'react-icons/fi';
+import AddEmployeeModal from '../../../components/AddEmployeeModal';
+import EmployeeProfileModal from '../../../components/EmployeeProfileModal';
 
 interface Employee {
   id: string;
   firstName: string;
   lastName: string;
-  department: string | null;
-  phone: string | null;
-  serviceArea: string | null;
+  departmentId: string;
+  department?: {
+    id: string;
+    name: string;
+  };
+  phone: string;
   user: {
+    id: string;
     email: string;
     role: string;
-  };
+  }
 }
 
-export default function EmployeesPage() {
+export default function EmployeeManagement() {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  
-  // Form state
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    department: '',
-    serviceArea: '',
-    role: 'FIELD_EMPLOYEE'
-  });
+  const [search, setSearch] = useState('');
 
-  const fetchEmployees = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/employees', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setEmployees(data);
-      } else {
-        console.error('Failed to fetch employees');
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
     fetchEmployees();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  useEffect(() => {
+    if (search) {
+      const q = search.toLowerCase();
+      setFilteredEmployees(employees.filter(emp => 
+        `${emp.firstName} ${emp.lastName}`.toLowerCase().includes(q) ||
+        emp.user.email.toLowerCase().includes(q) ||
+        (emp.department?.name.toLowerCase() || '').includes(q)
+      ));
+    } else {
+      setFilteredEmployees(employees);
+    }
+  }, [search, employees]);
 
-  const handleAddEmployee = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const fetchEmployees = async () => {
     try {
       const token = localStorage.getItem('token');
-      const url = editingEmployee 
-        ? `http://localhost:5000/api/employees/${editingEmployee.id}` 
-        : 'http://localhost:5000/api/employees';
-      const method = editingEmployee ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/employees`, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      
-      if (res.ok) {
-        setShowModal(false);
-        setEditingEmployee(null);
-        setFormData({ email: '', password: '', firstName: '', lastName: '', phone: '', department: '', serviceArea: '', role: 'FIELD_EMPLOYEE' });
-        fetchEmployees(); // Refresh list
-      } else {
-        const errData = await res.json();
-        alert(`Error: ${errData.message}`);
-      }
+      const data = await res.json();
+      setEmployees(data);
     } catch (error) {
-      console.error(error);
-      alert('Error processing employee');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEdit = (emp: Employee) => {
-    setEditingEmployee(emp);
-    setFormData({
-      email: emp.user.email,
-      password: '', // Don't show password
-      firstName: emp.firstName,
-      lastName: emp.lastName,
-      phone: emp.phone || '',
-      department: emp.department || '',
-      serviceArea: emp.serviceArea || '',
-      role: emp.user.role
-    });
-    setShowModal(true);
+  const handleRoleUpdate = async (userId: string, newRole: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/employees/${userId}/role`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+      if (res.ok) fetchEmployees();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete/deactivate this employee?')) return;
+  const handleDeleteEmployee = async (employeeId: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to PERMANENTLY delete ${name}? This will remove all their data, attendance, and records.`)) {
+      return;
+    }
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/employees/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/employees/${employeeId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      
       if (res.ok) {
         fetchEmployees();
       } else {
-        const errData = await res.json();
-        alert(`Error: ${errData.message}`);
+        const data = await res.json();
+        alert(data.message || 'Failed to delete employee');
       }
     } catch (error) {
       console.error(error);
@@ -138,142 +105,137 @@ export default function EmployeesPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="p-6 space-y-8 animate-in fade-in duration-700">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Employees</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-800 tracking-tight">HR & Employee Directory</h1>
+          <p className="text-slate-500 mt-1">Manage team roles, access, and performance tracking.</p>
+        </div>
         <button 
-          onClick={() => {
-            setEditingEmployee(null);
-            setFormData({ email: '', password: '', firstName: '', lastName: '', phone: '', department: '', serviceArea: '', role: 'FIELD_EMPLOYEE' });
-            setShowModal(true);
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md shadow-blue-200 font-bold"
         >
-          + Add Employee
+          <FiUserPlus className="stroke-[3px]" /> Add Employee
         </button>
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">{editingEmployee ? 'Edit Employee' : 'Add New Employee'}</h2>
-            <form onSubmit={handleAddEmployee} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">First Name</label>
-                  <input required name="firstName" value={formData.firstName} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                  <input required name="lastName" value={formData.lastName} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input required type="email" name="email" value={formData.email} onChange={handleChange} disabled={!!editingEmployee} className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-50" />
-              </div>
-              
-              {!editingEmployee && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Password</label>
-                  <input required type="password" name="password" value={formData.password} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
-                </div>
-              )}
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Phone</label>
-                <input name="phone" value={formData.phone} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Department</label>
-                <input name="department" value={formData.department} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Service Area</label>
-                <input name="serviceArea" value={formData.serviceArea} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md p-2" />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Role</label>
-                <select name="role" value={formData.role} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                  <option value="FIELD_EMPLOYEE">Field Employee</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end space-x-3 mt-6">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-gray-600 hover:text-gray-800">
-                  Cancel
-                </button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                  {editingEmployee ? 'Update' : 'Save'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">Loading...</td>
-              </tr>
-            ) : employees.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">No employees found</td>
-              </tr>
-            ) : (
-              employees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {emp.firstName} {emp.lastName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {emp.user.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {emp.department || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {emp.user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button 
-                      onClick={() => handleEdit(emp)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-3"
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(emp.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="relative group max-w-md">
+        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+        <input 
+          type="text" 
+          placeholder="Search by name, email or department..." 
+          className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl shadow-sm focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-sm"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {loading ? (
+          [1,2,3,4,5,6].map(i => (
+            <div key={i} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-50 h-64 animate-pulse flex flex-col gap-4">
+              <div className="flex gap-4 items-center">
+                <div className="w-14 h-14 rounded-full bg-slate-100"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-slate-100 rounded w-1/2"></div>
+                  <div className="h-3 bg-slate-100 rounded w-1/3"></div>
+                </div>
+              </div>
+              <div className="space-y-3 pt-4">
+                <div className="h-4 bg-slate-50 rounded"></div>
+                <div className="h-4 bg-slate-50 rounded"></div>
+              </div>
+            </div>
+          ))
+        ) : filteredEmployees.length === 0 ? (
+          <div className="col-span-full py-20 text-center text-slate-400 font-bold uppercase tracking-widest">No Employees Found</div>
+        ) : (
+          filteredEmployees.map((emp) => (
+            <div key={emp.id} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-blue-500/5 transition-all relative group overflow-hidden">
+              <button className="absolute top-6 right-6 text-slate-300 hover:text-slate-600 transition-colors">
+                <FiMoreVertical className="w-5 h-5" />
+              </button>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl border border-blue-100">
+                  {emp.firstName[0]}{emp.lastName[0]}
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800 text-lg leading-tight">{emp.firstName} {emp.lastName}</h3>
+                  <span className="text-[10px] font-black px-2 py-0.5 bg-blue-600 text-white rounded-md uppercase tracking-tighter shadow-sm">{emp.user.role.replace('_', ' ')}</span>
+                </div>
+              </div>
+
+              <div className="space-y-3.5">
+                <div className="flex items-center gap-3 text-sm font-medium text-slate-600">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                    <FiMail className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <span className="truncate">{emp.user.email}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm font-medium text-slate-600">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                    <FiPhone className="w-4 h-4 text-blue-500" />
+                  </div>
+                  {emp.phone || 'Contact Missing'}
+                </div>
+                <div className="flex items-center gap-3 text-sm font-medium text-slate-600">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                    <FiTag className="w-4 h-4 text-blue-500" />
+                  </div>
+                  {emp.department?.name || 'General Staff'}
+                </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-slate-50 flex gap-3">
+                <button 
+                  onClick={() => handleDeleteEmployee(emp.id, `${emp.firstName} ${emp.lastName}`)}
+                  className="w-12 h-12 flex items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                  title="Delete Employee"
+                >
+                  <FiTrash2 className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => {
+                    setSelectedEmployeeId(emp.id);
+                    setIsProfileModalOpen(true);
+                  }}
+                  className="flex-1 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white py-3 rounded-xl transition-all uppercase tracking-wider"
+                >
+                  View Profile
+                </button>
+                <button 
+                  onClick={() => handleRoleUpdate(emp.user.id, emp.user.role === 'ADMIN' ? 'FIELD_EMPLOYEE' : 'ADMIN')}
+                  className={`flex-1 text-xs font-bold py-3 rounded-xl transition-all uppercase tracking-wider ${
+                    emp.user.role === 'ADMIN' 
+                      ? 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white' 
+                      : 'bg-slate-800 text-white hover:bg-black shadow-lg shadow-slate-200'
+                  }`}
+                >
+                  {emp.user.role === 'ADMIN' ? 'Demote Staff' : 'Make Admin'}
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <AddEmployeeModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchEmployees} 
+      />
+
+      {selectedEmployeeId && (
+        <EmployeeProfileModal 
+          isOpen={isProfileModalOpen}
+          onClose={() => {
+            setIsProfileModalOpen(false);
+            setSelectedEmployeeId(null);
+          }}
+          employeeId={selectedEmployeeId}
+        />
+      )}
     </div>
   );
 }

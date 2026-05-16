@@ -8,6 +8,21 @@ Follow these steps to get the project running on your local machine.
 
 ---
 
+## ⚠️ IMPORTANT: USE STABLE_STARTUP.md ⚠️
+For the most stable, crash-proof way to run this ERP, please use:
+`STABLE_STARTUP.md`
+
+This uses the PM2 Process Manager to ensure 24/7 uptime.
+
+---
+
+## 🚀 QUICK START (RECOMMENDED)
+If you want to start everything (Backend, Frontend, and Cloudflare Tunnel) with one command, run:
+`pm2 start universal-launcher.js`
+`cloudflared tunnel --url http://localhost:3000`
+
+---
+
 ## 1. BACKEND SETUP
 Open a terminal and navigate to the backend folder:
 `cd backend`

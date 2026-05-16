@@ -5,10 +5,11 @@ export interface AuthRequest extends Request {
   user?: {
     userId: string;
     role: string;
+    employeeId?: string | null;
   };
 }
 
-export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const authenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -25,13 +26,14 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     
     req.user = {
       userId: decoded.userId,
-      role: decoded.role
+      role: decoded.role,
+      employeeId: decoded.employeeId
     };
     next();
   });
 };
 
-export const authorizeRole = (roles: string[]) => {
+export const authorize = (roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user || !roles.includes(req.user.role)) {
       console.log(`Unauthorized role: user role is ${req.user?.role}, required one of: ${roles.join(', ')}`);

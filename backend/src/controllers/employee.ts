@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 // ONLY ADMIN CAN create employees
 export const createEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, role, firstName, lastName, phone, department, reportingToId, serviceArea } = req.body;
+    const { email, password, role, firstName, lastName, phone, departmentId, reportingToId, designation } = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -45,9 +45,9 @@ export const createEmployee = async (req: Request, res: Response): Promise<void>
           firstName,
           lastName,
           phone,
-          department,
+          departmentId,
           reportingToId,
-          serviceArea
+          designation
         }
       });
 
@@ -72,10 +72,16 @@ export const getEmployees = async (req: Request, res: Response): Promise<void> =
       include: {
         user: {
           select: {
+            id: true,
             email: true,
             role: true,
             isActive: true
           }
+        },
+        department: true,
+        gpsLogs: {
+          orderBy: { timestamp: 'desc' },
+          take: 1
         }
       }
     });
@@ -88,11 +94,11 @@ export const getEmployees = async (req: Request, res: Response): Promise<void> =
 export const updateEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, phone, department, serviceArea } = req.body;
+    const { firstName, lastName, phone, departmentId, designation } = req.body;
 
     const employee = await prisma.employee.update({
       where: { id: id as string },
-      data: { firstName, lastName, phone, department, serviceArea }
+      data: { firstName, lastName, phone, departmentId, designation }
     });
 
     res.json({ message: 'Employee updated', employee });
@@ -114,19 +120,31 @@ export const deleteEmployee = async (req: Request, res: Response): Promise<void>
 
     // Perform hard delete within a transaction to handle relations
     await prisma.$transaction(async (tx) => {
-      // Delete related records that would block deletion
+      // 1. Delete standalone records
       await tx.gpsLog.deleteMany({ where: { employeeId: employee.id } });
       await tx.attendance.deleteMany({ where: { employeeId: employee.id } });
+      await tx.leaveRequest.deleteMany({ where: { employeeId: employee.id } });
+      await tx.socialPost.deleteMany({ where: { authorId: employee.id } });
       await tx.message.deleteMany({ 
         where: { 
           OR: [{ senderId: employee.id }, { receiverId: employee.id }] 
         } 
       });
       
-      // Delete employee record
+      // 2. Handle linked records (Nullify assignments or delete reports)
+      // Service reports depend on the engineer
+      await tx.serviceReport.deleteMany({ where: { engineerId: employee.id } });
+      
+      // Update tickets to unassign this employee
+      await tx.ticket.updateMany({
+        where: { assignedToId: employee.id },
+        data: { assignedToId: null }
+      });
+      
+      // 3. Delete employee record
       await tx.employee.delete({ where: { id: employee.id } });
       
-      // Delete user record
+      // 4. Delete user record
       await tx.user.delete({ where: { id: employee.userId } });
     });
 
@@ -139,6 +157,61 @@ export const deleteEmployee = async (req: Request, res: Response): Promise<void>
     res.json({ message: 'Employee deleted permanently' });
   } catch (error) {
     console.error('Delete employee error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const updateEmployeeRole = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params; // userId
+    const { role } = req.body;
+
+    await prisma.user.update({
+      where: { id: id as string },
+      data: { role }
+    });
+
+    res.json({ message: `Role updated to ${role}` });
+  } catch (error) {
+    console.error('Update role error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getEmployeeById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const employee = await prisma.employee.findUnique({
+      where: { id: id as string },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            isActive: true
+          }
+        },
+        department: true,
+        attendance: {
+          orderBy: { date: 'desc' },
+          take: 10
+        },
+        gpsLogs: {
+          orderBy: { timestamp: 'desc' },
+          take: 5
+        }
+      }
+    });
+
+    if (!employee) {
+      res.status(404).json({ message: 'Employee not found' });
+      return;
+    }
+
+    res.json(employee);
+  } catch (error) {
+    console.error('Get employee error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

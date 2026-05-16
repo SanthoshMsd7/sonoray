@@ -1,7 +1,37 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import https from 'https';
 
 const prisma = new PrismaClient();
+
+// Helper for reverse geocoding using Nominatim
+const reverseGeocode = (lat: number, lon: number): Promise<string | null> => {
+  return new Promise((resolve) => {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+    
+    const options = {
+      headers: {
+        'User-Agent': 'ERP-Tracking-App' // Nominatim requires a user agent
+      }
+    };
+
+    https.get(url, options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          resolve(json.display_name || null);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }).on('error', (err) => {
+      console.error('Geocoding error:', err);
+      resolve(null);
+    });
+  });
+};
 
 // POST /api/tracking/update
 export const updateLocation = async (req: Request, res: Response): Promise<void> => {
@@ -13,14 +43,38 @@ export const updateLocation = async (req: Request, res: Response): Promise<void>
       return;
     }
 
+    // Try to get address
+    const address = await reverseGeocode(latitude, longitude);
+
     const log = await prisma.gpsLog.create({
       data: {
         employeeId,
         latitude,
         longitude,
+        address,
         batteryLevel
       }
     });
+
+    // Fetch employee name for the socket update
+    const employee = await prisma.employee.findUnique({
+      where: { id: employeeId },
+      select: { firstName: true, lastName: true }
+    });
+
+    // Notify admin via socket
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('employeeLocationUpdate', {
+        employeeId,
+        name: employee ? `${employee.firstName} ${employee.lastName}` : 'Employee',
+        latitude,
+        longitude,
+        address,
+        batteryLevel,
+        timestamp: log.timestamp
+      });
+    }
 
     res.status(201).json({ message: 'Location updated', log });
   } catch (error) {
@@ -60,6 +114,7 @@ export const getActiveLocations = async (req: Request, res: Response): Promise<v
         role: emp.user.role,
         latitude: emp.gpsLogs[0].latitude,
         longitude: emp.gpsLogs[0].longitude,
+        address: emp.gpsLogs[0].address,
         batteryLevel: emp.gpsLogs[0].batteryLevel,
         timestamp: emp.gpsLogs[0].timestamp
       }));
