@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { 
   FiPackage, FiAlertCircle, FiClock, FiUsers, 
   FiActivity, FiMapPin, FiCheckCircle,
@@ -74,8 +75,8 @@ export default function AdminDashboard() {
       title: 'Installed Machines',
       value: stats?.totalMachines ?? 0,
       icon: FiPackage,
-      gradient: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-      shadow: 'rgba(99,102,241,0.3)',
+      gradient: 'from-blue-500 to-indigo-600',
+      shadow: 'shadow-indigo-200',
       change: '+12% this month',
       up: true,
     },
@@ -83,8 +84,8 @@ export default function AdminDashboard() {
       title: 'Under Warranty',
       value: stats?.activeWarranty ?? 0,
       icon: FiCheckCircle,
-      gradient: 'linear-gradient(135deg, #10b981, #059669)',
-      shadow: 'rgba(16,185,129,0.3)',
+      gradient: 'from-emerald-500 to-emerald-600',
+      shadow: 'shadow-emerald-200',
       change: 'Active coverage',
       up: true,
     },
@@ -92,8 +93,8 @@ export default function AdminDashboard() {
       title: 'Pending Breakdowns',
       value: stats?.pendingBreakdowns ?? 0,
       icon: FiAlertCircle,
-      gradient: 'linear-gradient(135deg, #ef4444, #dc2626)',
-      shadow: 'rgba(239,68,68,0.3)',
+      gradient: 'from-rose-500 to-rose-600',
+      shadow: 'shadow-rose-200',
       change: 'Needs attention',
       up: false,
     },
@@ -101,8 +102,8 @@ export default function AdminDashboard() {
       title: 'Present Today',
       value: stats?.presentToday ?? 0,
       icon: FiUsers,
-      gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-      shadow: 'rgba(139,92,246,0.3)',
+      gradient: 'from-violet-500 to-purple-600',
+      shadow: 'shadow-purple-200',
       change: `of ${attStats?.totalEmployees ?? '...'} total`,
       up: true,
     },
@@ -110,8 +111,8 @@ export default function AdminDashboard() {
       title: 'Low Stock Items',
       value: stats?.lowStockCount ?? 0,
       icon: FiBarChart2,
-      gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
-      shadow: 'rgba(245,158,11,0.3)',
+      gradient: 'from-amber-500 to-orange-600',
+      shadow: 'shadow-orange-200',
       change: 'Below threshold',
       up: false,
     },
@@ -122,108 +123,82 @@ export default function AdminDashboard() {
     : 0;
 
   return (
-    <div style={{ padding: '32px', minHeight: '100vh', background: '#f8fafc' }}>
+    <div className="p-4 md:p-8 min-h-screen bg-slate-50">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+      <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
         <div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
             Sonoray ERP Dashboard
           </h1>
-          <p style={{ color: '#64748b', marginTop: '6px', fontWeight: 500, fontSize: '14px' }}>
+          <p className="text-slate-500 mt-1 font-medium text-sm">
             Welcome back, Admin · Here&rsquo;s your operations overview
           </p>
         </div>
-        <div style={{
-          background: 'linear-gradient(135deg, #1e3a5f, #0f172a)',
-          borderRadius: '16px', padding: '14px 20px', textAlign: 'right',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        }}>
-          <p style={{ color: '#60a5fa', fontSize: '20px', fontWeight: 800, margin: 0 }}>
-            {time.toLocaleTimeString()}
+        <div className="bg-slate-900 rounded-2xl p-4 md:px-6 md:py-4 text-right shadow-xl shadow-slate-200 w-full md:w-auto">
+          <p className="text-blue-400 text-xl md:text-2xl font-black tabular-nums">
+            {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </p>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', fontWeight: 700, margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <p className="text-slate-500 text-[10px] font-bold mt-1 uppercase tracking-widest">
             {time.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}
           </p>
         </div>
       </div>
 
       {/* Stat Cards */}
-      {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '28px' }}>
-          {[1,2,3,4,5,6].map(i => (
-            <div key={i} style={{ height: '140px', background: '#e2e8f0', borderRadius: '20px', animation: 'pulse 1.5s ease-in-out infinite' }} />
-          ))}
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '28px' }}>
-          {statCards.map((card, idx) => (
-            <div key={idx} style={{
-              background: '#fff', borderRadius: '20px', padding: '24px',
-              boxShadow: '0 2px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)',
-              transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'default',
-              display: 'flex', alignItems: 'center', gap: '18px',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = `0 12px 40px ${card.shadow}`; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 20px rgba(0,0,0,0.06)'; }}
-            >
-              <div style={{
-                width: '56px', height: '56px', borderRadius: '16px', flexShrink: 0,
-                background: card.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: `0 8px 24px ${card.shadow}`,
-              }}>
-                <card.icon style={{ color: 'white', width: '24px', height: '24px' }} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6 mb-8">
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-32 bg-slate-200 rounded-2xl animate-pulse" />
+          ))
+        ) : (
+          statCards.map((card, idx) => (
+            <div key={idx} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+              <div className={`w-14 h-14 rounded-xl flex-shrink-0 bg-gradient-to-br ${card.gradient} flex items-center justify-center shadow-lg ${card.shadow}`}>
+                <card.icon className="text-white w-6 h-6" />
               </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ color: '#64748b', fontSize: '12px', fontWeight: 700, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <div className="min-w-0">
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider truncate">
                   {card.title}
                 </p>
-                <p style={{ color: '#0f172a', fontSize: '28px', fontWeight: 800, margin: '4px 0', lineHeight: 1 }}>
+                <p className="text-slate-900 text-2xl font-black my-0.5">
                   {card.value.toLocaleString()}
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div className="flex items-center gap-1">
                   {card.up
-                    ? <FiArrowUp style={{ color: '#10b981', width: '12px', height: '12px' }} />
-                    : <FiArrowDown style={{ color: '#ef4444', width: '12px', height: '12px' }} />
+                    ? <FiArrowUp className="text-emerald-500 w-3 h-3" />
+                    : <FiArrowDown className="text-rose-500 w-3 h-3" />
                   }
-                  <span style={{ fontSize: '11px', color: card.up ? '#10b981' : '#ef4444', fontWeight: 600 }}>
+                  <span className={`text-[10px] font-bold ${card.up ? 'text-emerald-500' : 'text-rose-500'}`}>
                     {card.change}
                   </span>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
 
-      {/* Bottom two panels — REAL DATA */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-
+      {/* Bottom two panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Panel 1: Today's Attendance Breakdown */}
-        <div style={{
-          background: '#fff', borderRadius: '20px', padding: '28px',
-          boxShadow: '0 2px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100">
+          <div className="flex justify-between items-center mb-8">
             <div>
-              <h3 style={{ fontWeight: 800, color: '#0f172a', margin: 0, fontSize: '16px' }}>Today's Attendance</h3>
-              <p style={{ color: '#64748b', fontSize: '12px', margin: '4px 0 0', fontWeight: 500 }}>
+              <h3 className="text-lg font-black text-slate-900 tracking-tight">Today&apos;s Attendance</h3>
+              <p className="text-slate-400 text-xs font-medium mt-1">
                 {time.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
             </div>
-            <div style={{
-              background: '#f0fdf4', borderRadius: '12px', padding: '8px 14px',
-              color: '#16a34a', fontWeight: 800, fontSize: '13px',
-            }}>
+            <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-xs font-black tracking-tight">
               {attendanceRate}% rate
             </div>
           </div>
 
-          {/* Big radial indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '28px', marginBottom: '24px' }}>
-            <div style={{ position: 'relative', width: '100px', height: '100px', flexShrink: 0 }}>
-              <svg width="100" height="100" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="#f1f5f9" strokeWidth="10"/>
-                <circle cx="50" cy="50" r="42" fill="none" stroke="#10b981" strokeWidth="10"
+          <div className="flex flex-col sm:flex-row items-center gap-8 md:gap-12 mb-8">
+            <div className="relative w-32 h-32 flex-shrink-0">
+              <svg className="w-full h-full" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" className="stroke-slate-100" strokeWidth="10"/>
+                <circle cx="50" cy="50" r="42" fill="none" className="stroke-emerald-500" strokeWidth="10"
                   strokeDasharray={`${2 * Math.PI * 42}`}
                   strokeDashoffset={`${2 * Math.PI * 42 * (1 - attendanceRate / 100)}`}
                   strokeLinecap="round"
@@ -231,103 +206,78 @@ export default function AdminDashboard() {
                   style={{ transition: 'stroke-dashoffset 1s ease' }}
                 />
               </svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontWeight: 800, fontSize: '22px', color: '#0f172a', lineHeight: 1 }}>{attStats?.presentToday ?? 0}</span>
-                <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase' }}>present</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-black text-slate-900 leading-none">{attStats?.presentToday ?? 0}</span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-widest">present</span>
               </div>
             </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div className="flex-1 w-full grid grid-cols-2 gap-3">
               {[
-                { label: 'Present', value: attStats?.presentToday ?? 0, color: '#10b981', bg: '#f0fdf4' },
-                { label: 'Absent', value: attStats?.absentToday ?? 0, color: '#ef4444', bg: '#fef2f2' },
-                { label: 'On Leave', value: attStats?.onLeaveToday ?? 0, color: '#3b82f6', bg: '#eff6ff' },
-                { label: 'Total Staff', value: attStats?.totalEmployees ?? 0, color: '#8b5cf6', bg: '#f5f3ff' },
+                { label: 'Present', value: attStats?.presentToday ?? 0, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                { label: 'Absent', value: attStats?.absentToday ?? 0, color: 'text-rose-600', bg: 'bg-rose-50' },
+                { label: 'On Leave', value: attStats?.onLeaveToday ?? 0, color: 'text-blue-600', bg: 'bg-blue-50' },
+                { label: 'Total Staff', value: attStats?.totalEmployees ?? 0, color: 'text-violet-600', bg: 'bg-violet-50' },
               ].map(item => (
-                <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: item.bg, borderRadius: '10px', padding: '8px 14px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>{item.label}</span>
-                  <span style={{ fontSize: '15px', fontWeight: 800, color: item.color }}>{item.value}</span>
+                <div key={item.label} className={`${item.bg} rounded-2xl p-4 flex flex-col`}>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</span>
+                  <span className={`text-xl font-black ${item.color} mt-1`}>{item.value}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Monthly Avg Attendance</span>
-            <span style={{ fontSize: '15px', fontWeight: 800, color: '#3b82f6' }}>{attStats?.avgAttendance ?? '0'}%</span>
+          <div className="bg-slate-50 rounded-2xl p-4 flex justify-between items-center border border-slate-100">
+            <span className="text-sm text-slate-500 font-bold">Monthly Avg Attendance</span>
+            <span className="text-lg font-black text-blue-600">{attStats?.avgAttendance ?? '0'}%</span>
           </div>
         </div>
 
-        {/* Panel 2: Active Field Engineers */}
-        <div style={{
-          background: '#fff', borderRadius: '20px', padding: '28px',
-          boxShadow: '0 2px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        {/* Panel 2: Field Engineers */}
+        <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100">
+          <div className="flex justify-between items-center mb-8">
             <div>
-              <h3 style={{ fontWeight: 800, color: '#0f172a', margin: 0, fontSize: '16px' }}>Field Engineers</h3>
-              <p style={{ color: '#64748b', fontSize: '12px', margin: '4px 0 0', fontWeight: 500 }}>Team directory overview</p>
+              <h3 className="text-lg font-black text-slate-900 tracking-tight">Field Engineers</h3>
+              <p className="text-slate-400 text-xs font-medium mt-1">Live status overview</p>
             </div>
-            <a href="/admin/employees" style={{
-              background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: '#fff',
-              borderRadius: '10px', padding: '8px 14px', fontSize: '12px', fontWeight: 700,
-              textDecoration: 'none', display: 'inline-block',
-            }}>
+            <Link href="/admin/employees" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl text-xs font-black shadow-lg shadow-blue-200 transition-transform active:scale-95">
               Manage All
-            </a>
+            </Link>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="space-y-3">
             {loading ? (
-              [1,2,3,4,5].map(i => (
-                <div key={i} style={{ height: '52px', background: '#f1f5f9', borderRadius: '12px', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-16 bg-slate-50 rounded-2xl animate-pulse" />
               ))
             ) : recentEmployees.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8', fontWeight: 700, fontSize: '13px' }}>
+              <div className="text-center py-12 text-slate-400 font-bold text-sm">
                 No employees found
               </div>
             ) : (
               recentEmployees.map(emp => {
                 const initials = `${emp.firstName[0]}${emp.lastName[0]}`;
-                const colors = ['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4'];
-                const color = colors[(emp.firstName.charCodeAt(0)) % colors.length];
+                const colors = ['bg-blue-500','bg-emerald-500','bg-violet-500','bg-amber-500','bg-rose-500','bg-cyan-500'];
+                const colorClass = colors[(emp.firstName.charCodeAt(0)) % colors.length];
+                const lastLog = emp.gpsLogs?.[0];
+                const isFresh = lastLog && (new Date().getTime() - new Date(lastLog.timestamp).getTime()) < 10 * 60 * 1000;
+                
                 return (
-                  <div key={emp.id} style={{
-                    display: 'flex', alignItems: 'center', gap: '14px',
-                    background: '#f8fafc', borderRadius: '14px', padding: '12px 14px',
-                    transition: 'background 0.15s',
-                  }}
-                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = '#f0f4ff'}
-                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = '#f8fafc'}
-                  >
-                    <div style={{
-                      width: '38px', height: '38px', borderRadius: '12px', flexShrink: 0,
-                      background: color + '20', color, fontWeight: 800, fontSize: '14px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      border: `1.5px solid ${color}30`,
-                    }}>
+                  <div key={emp.id} className="group flex items-center gap-4 bg-slate-50 hover:bg-blue-50 rounded-2xl p-3 transition-all duration-200 border border-transparent hover:border-blue-100">
+                    <div className={`w-12 h-12 rounded-xl flex-shrink-0 ${colorClass} text-white font-black text-sm flex items-center justify-center shadow-lg`}>
                       {initials}
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontWeight: 700, color: '#1e293b', fontSize: '14px', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-slate-800 text-sm truncate">
                         {emp.firstName} {emp.lastName}
                       </p>
-                      <p style={{ color: '#94a3b8', fontSize: '11px', fontWeight: 600, margin: '2px 0 0' }}>
+                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-0.5">
                         {emp.department?.name || 'General Staff'}
                       </p>
                     </div>
-                    {(() => {
-                      const lastLog = emp.gpsLogs?.[0];
-                      const isFresh = lastLog && (new Date().getTime() - new Date(lastLog.timestamp).getTime()) < 5 * 60 * 1000;
-                      return (
-                        <div style={{
-                          width: '8px', height: '8px', borderRadius: '50%',
-                          background: isFresh ? '#10b981' : '#ef4444',
-                          boxShadow: isFresh ? '0 0 0 3px rgba(16,185,129,0.2)' : '0 0 0 3px rgba(239,68,68,0.2)',
-                          flexShrink: 0,
-                          animation: isFresh ? 'none' : 'pulse 2s infinite'
-                        }} />
-                      );
-                    })()}
+                    <div className="flex flex-col items-end gap-2">
+                      <div className={`w-2.5 h-2.5 rounded-full ${isFresh ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-300'} ${isFresh ? 'animate-pulse' : ''}`} />
+                      <span className="text-[9px] font-bold text-slate-400 uppercase">{isFresh ? 'Active' : 'Offline'}</span>
+                    </div>
                   </div>
                 );
               })
@@ -335,22 +285,14 @@ export default function AdminDashboard() {
           </div>
 
           {!loading && recentEmployees.length > 0 && (
-            <a href="/admin/tracking" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-              marginTop: '16px', background: '#f0f9ff', borderRadius: '12px', padding: '12px',
-              color: '#3b82f6', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
-              transition: 'background 0.15s',
-            }}>
-              <FiMapPin style={{ width: '14px', height: '14px' }} />
+            <Link href="/admin/tracking" className="flex items-center justify-center gap-2 mt-6 bg-blue-50 hover:bg-blue-100 p-4 rounded-2xl text-blue-600 text-xs font-black transition-all group">
+              <FiMapPin className="w-4 h-4 group-hover:scale-110 transition-transform" />
               View Live Map Tracking
-            </a>
+            </Link>
           )}
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-      `}</style>
     </div>
   );
 }
+

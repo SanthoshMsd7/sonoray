@@ -38,7 +38,7 @@ export default function StockManagement() {
 
     // Search Logic (with Null Checks)
     if (searchQuery) {
-      result = result.filter(item => 
+      result = result.filter(item =>
         (item.machineName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
         (item.make?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
         (item.modelNumber?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
@@ -104,14 +104,14 @@ export default function StockManagement() {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) return;
-    
+
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stock/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (res.ok) {
         fetchStock();
       } else {
@@ -132,19 +132,19 @@ export default function StockManagement() {
           <p className="text-slate-500 mt-1">Live inventory tracking for Ultrasound systems and parts.</p>
         </div>
         <div className="flex gap-3 no-print">
-          <button 
+          <button
             onClick={() => window.print()}
             className="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl flex items-center gap-2 hover:bg-slate-50 transition-all font-bold"
           >
             <FiPrinter /> Print Report
           </button>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="px-4 py-2.5 border border-slate-200 rounded-xl flex items-center gap-2 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all font-medium"
           >
             <FiArrowUpRight className="text-blue-500" /> Incoming
           </button>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md shadow-blue-200 font-medium"
           >
@@ -154,14 +154,14 @@ export default function StockManagement() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div 
+        <div
           onClick={() => setActiveFilter('all')}
           className={`cursor-pointer p-6 rounded-2xl border transition-all ${activeFilter === 'all' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-white border-slate-100 shadow-sm hover:border-blue-200'}`}
         >
           <p className={`text-sm font-medium mb-1 ${activeFilter === 'all' ? 'text-blue-100' : 'text-slate-500'}`}>Total SKU Items</p>
           <p className="text-3xl font-bold">{stock.length}</p>
         </div>
-        <div 
+        <div
           onClick={() => setActiveFilter('low')}
           className={`cursor-pointer p-6 rounded-2xl border transition-all ${activeFilter === 'low' ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-200' : 'bg-white border-slate-100 shadow-sm hover:border-orange-200'}`}
         >
@@ -174,16 +174,16 @@ export default function StockManagement() {
         <div className="p-4 border-b border-slate-50 flex flex-col md:flex-row gap-4 items-center justify-between no-print">
           <div className="relative w-full max-w-md group">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search by name, category or warehouse..." 
+            <input
+              type="text"
+              placeholder="Search by name, category or warehouse..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 transition-all outline-none" 
+              className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
             />
           </div>
           {activeFilter !== 'all' && (
-            <button 
+            <button
               onClick={() => setActiveFilter('all')}
               className="text-sm text-blue-600 font-medium hover:underline"
             >
@@ -243,9 +243,8 @@ export default function StockManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-tighter ${
-                        s.quantity > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-tighter ${s.quantity > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                        }`}>
                         {s.quantity > 0 ? 'In Stock' : 'Out of Stock'}
                       </span>
                     </td>
@@ -276,9 +275,8 @@ export default function StockManagement() {
                     <span className="text-sm font-bold text-slate-800">{s.machineName}</span>
                     <span className="text-[10px] text-slate-400">{s.make} | {s.modelNumber}</span>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
-                    s.quantity > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
-                  }`}>
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${s.quantity > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                    }`}>
                     {s.quantity > 0 ? 'In Stock' : 'Out'}
                   </span>
                 </div>
@@ -302,16 +300,16 @@ export default function StockManagement() {
         </div>
       </div>
 
-      <AddStockModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSuccess={fetchStock} 
+      <AddStockModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchStock}
       />
 
-      <EditStockModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
-        onSuccess={fetchStock} 
+      <EditStockModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={fetchStock}
         item={selectedItem}
       />
     </div>

@@ -56,9 +56,9 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col animate-in fade-in slide-in-from-bottom-8 sm:zoom-in-95 duration-300">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 sticky top-0 z-10">
           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <FiPackage className="text-blue-600" /> New Stock Entry
           </h2>
@@ -67,8 +67,8 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase ml-1">Stock ID/SKU</label>
               <div className="relative">
@@ -77,54 +77,18 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
                   required
                   type="text" 
                   placeholder="e.g. US-800"
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                  className="w-full pl-9 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
                   value={formData.stockId}
                   onChange={(e) => setFormData({...formData, stockId: e.target.value})}
                 />
               </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Make / Brand</label>
-              <input 
-                type="text" 
-                placeholder="e.g. Samsung, GE"
-                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
-                value={formData.make}
-                onChange={(e) => setFormData({...formData, make: e.target.value})}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Model Number</label>
-              <input 
-                type="text" 
-                placeholder="e.g. V8-Prime"
-                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
-                value={formData.modelNumber}
-                onChange={(e) => setFormData({...formData, modelNumber: e.target.value})}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Serial Number (SN)</label>
-              <input 
-                type="text" 
-                placeholder="e.g. SN-98234-X"
-                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-mono"
-                value={formData.serialNumber}
-                onChange={(e) => setFormData({...formData, serialNumber: e.target.value})}
-              />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase ml-1">Category</label>
               <div className="relative">
                 <FiGrid className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <select 
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none"
+                  className="w-full pl-9 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none"
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                 >
@@ -142,31 +106,65 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
               required
               type="text" 
               placeholder="e.g. Samsung V8 Ultrasound"
-              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-bold"
+              className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-bold text-slate-800"
               value={formData.machineName}
               onChange={(e) => setFormData({...formData, machineName: e.target.value})}
             />
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Make / Brand</label>
+              <input 
+                type="text" 
+                placeholder="e.g. Samsung, GE"
+                className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                value={formData.make}
+                onChange={(e) => setFormData({...formData, make: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase ml-1">Model Number</label>
+              <input 
+                type="text" 
+                placeholder="e.g. V8-Prime"
+                className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                value={formData.modelNumber}
+                onChange={(e) => setFormData({...formData, modelNumber: e.target.value})}
+              />
+            </div>
+          </div>
+
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Equipment Description / Other Info</label>
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Serial Number (SN)</label>
+            <input 
+              type="text" 
+              placeholder="e.g. SN-98234-X"
+              className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-mono"
+              value={formData.serialNumber}
+              onChange={(e) => setFormData({...formData, serialNumber: e.target.value})}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Technical Specs / Description</label>
             <textarea 
               placeholder="Technical specifications or additional details..."
-              rows={2}
-              className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none resize-none italic"
+              rows={3}
+              className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none resize-none"
               value={formData.technicalSpecs}
               onChange={(e) => setFormData({...formData, technicalSpecs: e.target.value})}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase ml-1">Quantity</label>
               <input 
                 required
                 type="number" 
                 min="0"
-                className="w-full px-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-bold"
+                className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none font-bold"
                 value={formData.quantity}
                 onChange={(e) => setFormData({...formData, quantity: e.target.value})}
               />
@@ -179,7 +177,7 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
                   required
                   type="text" 
                   placeholder="e.g. Floor 2, Shelf A"
-                  className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                  className="w-full pl-9 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
                   value={formData.warehouseLocation}
                   onChange={(e) => setFormData({...formData, warehouseLocation: e.target.value})}
                 />
@@ -187,20 +185,20 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
             </div>
           </div>
 
-          <div className="pt-4 flex gap-3">
+          <div className="pt-4 flex flex-col-reverse sm:flex-row gap-3 sticky bottom-0 bg-white pb-2">
             <button 
               type="button" 
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all uppercase tracking-wider text-xs"
+              className="w-full sm:flex-1 px-4 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase tracking-wider text-xs hover:bg-slate-200 transition-all"
             >
               Cancel
             </button>
             <button 
               type="submit" 
               disabled={loading}
-              className="flex-2 px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 uppercase tracking-wider text-xs flex items-center justify-center gap-2"
+              className="w-full sm:flex-1 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-200 uppercase tracking-wider text-xs flex items-center justify-center gap-2 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
             >
-              {loading ? 'Saving...' : <><FiSave /> Save Stock</>}
+              {loading ? 'Saving...' : <><FiSave className="w-4 h-4" /> Save Stock</>}
             </button>
           </div>
         </form>
@@ -208,3 +206,4 @@ export default function AddStockModal({ isOpen, onClose, onSuccess }: AddStockMo
     </div>
   );
 }
+
