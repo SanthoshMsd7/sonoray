@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { 
   FiPackage, FiAlertCircle, FiClock, FiUsers, 
-  FiTrendingUp, FiActivity, FiMapPin, FiCheckCircle,
+  FiActivity, FiMapPin, FiCheckCircle,
   FiBarChart2, FiArrowUp, FiArrowDown, FiCalendar
 } from 'react-icons/fi';
 
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
                   {card.title}
                 </p>
                 <p style={{ color: '#0f172a', fontSize: '28px', fontWeight: 800, margin: '4px 0', lineHeight: 1 }}>
-                  {card.isText ? card.value : card.value.toLocaleString()}
+                  {card.value.toLocaleString()}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   {card.up
