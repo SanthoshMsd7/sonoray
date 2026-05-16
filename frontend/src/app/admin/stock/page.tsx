@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import AddStockModal from '../../../components/AddStockModal';
 import EditStockModal from '../../../components/EditStockModal';
-import { FiPlus, FiSearch, FiAlertTriangle, FiArrowUpRight, FiArrowDownRight, FiEdit2, FiPrinter } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiAlertTriangle, FiArrowUpRight, FiArrowDownRight, FiEdit2, FiPrinter, FiTrash2 } from 'react-icons/fi';
 
 interface StockItem {
   id: string;
@@ -100,6 +100,28 @@ export default function StockManagement() {
   const handleEdit = (item: StockItem) => {
     setSelectedItem(item);
     setIsEditModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/stock/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        fetchStock();
+      } else {
+        const err = await res.json();
+        alert(err.message || 'Error deleting item');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Network error');
+    }
   };
 
   return (
@@ -226,12 +248,22 @@ export default function StockManagement() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right no-print">
-                      <button 
-                        onClick={() => handleEdit(s)}
-                        className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-all"
-                      >
-                        <FiEdit2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex justify-end gap-1">
+                        <button 
+                          onClick={() => handleEdit(s)}
+                          className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-all"
+                          title="Edit Item"
+                        >
+                          <FiEdit2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(s.id)}
+                          className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-all"
+                          title="Delete Item"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
