@@ -16,6 +16,7 @@ if (typeof window !== 'undefined') {
 
 export interface LocationData {
   id: string;
+  name: string;
   lat: number | null;
   lng: number | null;
   isOnDuty?: boolean;
@@ -83,22 +84,23 @@ export default function MapComponent({ locations, center = [0, 0], zoom = 2 }: M
               position={[loc.lat!, loc.lng!]} 
               icon={loc.isStale ? redIcon : new L.Icon.Default()}
             >
-            <Popup>
-              <div className="p-1">
-                <p className="font-bold text-slate-800">{loc.name}</p>
-                {loc.address && <p className="text-xs text-slate-500 mt-1">{loc.address}</p>}
-                <div className="flex items-center gap-4 mt-2 border-t pt-2 border-slate-100">
-                  {loc.batteryLevel !== undefined && (
-                    <span className="text-[10px] font-bold text-slate-400">🔋 {loc.batteryLevel}%</span>
-                  )}
-                  {loc.timestamp && (
-                    <span className="text-[10px] font-bold text-slate-400">🕒 {new Date(loc.timestamp).toLocaleTimeString()}</span>
-                  )}
+              <Popup>
+                <div className="p-1">
+                  <p className="font-bold text-slate-800">{loc.name}</p>
+                  {loc.address && <p className="text-xs text-slate-500 mt-1">{loc.address}</p>}
+                  <div className="flex items-center gap-4 mt-2 border-t pt-2 border-slate-100">
+                    {loc.batteryLevel !== undefined && (
+                      <span className="text-[10px] font-bold text-slate-400">🔋 {loc.batteryLevel}%</span>
+                    )}
+                    {loc.timestamp && (
+                      <span className="text-[10px] font-bold text-slate-400">🕒 {new Date(loc.timestamp).toLocaleTimeString()}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
     </div>
   );
