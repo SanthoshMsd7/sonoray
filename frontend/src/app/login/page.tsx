@@ -81,6 +81,32 @@ export default function LoginPage() {
         .input-field:focus { box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
         .btn-login:active { transform: scale(0.98); }
         .spinner { animation: spin 0.8s linear infinite; }
+
+        @media (max-width: 480px) {
+          .login-card {
+            margin-left: 12px !important;
+            margin-right: 12px !important;
+          }
+          .login-card > div {
+            padding: 32px 20px !important;
+            border-radius: 20px !important;
+          }
+          .login-card h1 {
+            font-size: 24px !important;
+          }
+          .login-card p {
+            font-size: 12px !important;
+          }
+          .input-field {
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+            font-size: 13px !important;
+          }
+          .btn-login {
+            padding: 14px !important;
+            font-size: 14px !important;
+          }
+        }
       `}</style>
 
       <div className="login-card relative z-10 w-full max-w-md mx-4">

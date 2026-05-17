@@ -140,15 +140,34 @@ export default function EmployeeAttendancePage() {
   const isAdminViewing = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '24px 32px' }}>
+    <div className="page-container" style={{ minHeight: '100vh', background: '#f8fafc', padding: '24px 32px' }}>
       <style>{`
         @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         .fade-up { animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both; }
         .punch-btn:active { transform: scale(0.97); }
+
+        @media (max-width: 900px) {
+          .page-container { padding: 16px 20px !important; }
+          .main-grid { grid-template-columns: 1fr !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+
+        @media (max-width: 640px) {
+          .page-container { padding: 12px 14px !important; }
+          .header-container { flex-direction: column !important; align-items: stretch !important; gap: 16px !important; margin-bottom: 20px !important; }
+          .header-time { text-align: left !important; }
+          .stats-grid { grid-template-columns: 1fr !important; }
+          .month-filter-header { padding: 16px 20px !important; }
+          .month-filter-header h3 { font-size: 14px !important; }
+          .month-filter-container { gap: 4px !important; margin-top: 8px !important; }
+          .month-filter-container button { padding: 4px 8px !important; font-size: 10px !important; }
+          .history-table-container th, .history-table-container td { padding: 12px 14px !important; }
+          .history-timing { flex-direction: column !important; gap: 4px !important; align-items: flex-start !important; }
+        }
       `}</style>
 
       {/* Header */}
-      <div className="fade-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
+      <div className="fade-up header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
             <div style={{
@@ -165,7 +184,7 @@ export default function EmployeeAttendancePage() {
             {isAdminViewing ? 'Your personal attendance history as a field member' : 'Daily status and reporting'}
           </p>
         </div>
-        <div style={{
+        <div className="header-time" style={{
           background: 'linear-gradient(135deg, #1e3a5f, #0f172a)', borderRadius: '16px',
           padding: '14px 20px', textAlign: 'right',
         }}>
@@ -179,7 +198,7 @@ export default function EmployeeAttendancePage() {
       </div>
 
       {/* Stats Row */}
-      <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px', animationDelay: '0.1s' }}>
+      <div className="fade-up stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px', animationDelay: '0.1s' }}>
         {[
           { label: 'Present', value: totalPresent, color: '#10b981', bg: '#f0fdf4', border: '#bbf7d0' },
           { label: 'Absent', value: totalAbsent, color: '#ef4444', bg: '#fef2f2', border: '#fecaca' },
@@ -196,7 +215,7 @@ export default function EmployeeAttendancePage() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
+      <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
         
         {/* Action Card */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -272,16 +291,16 @@ export default function EmployeeAttendancePage() {
         </div>
 
         {/* History Table */}
-        <div className="fade-up" style={{
+        <div className="fade-up animate-in fade-in duration-300" style={{
           background: '#fff', borderRadius: '24px',
           boxShadow: '0 2px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)',
           overflow: 'hidden', display: 'flex', flexDirection: 'column',
           animationDelay: '0.2s',
         }}>
           {/* Table header with month filter */}
-          <div style={{ padding: '24px 28px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div className="month-filter-header" style={{ padding: '24px 28px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Attendance History</h3>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <div className="month-filter-container" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {months.map((m, idx) => (
                 <button
                   key={m}
@@ -300,7 +319,7 @@ export default function EmployeeAttendancePage() {
             </div>
           </div>
 
-          <div style={{ overflowY: 'auto', flex: 1 }}>
+          <div className="history-table-container" style={{ overflowY: 'auto', flex: 1 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#f8fafc' }}>
@@ -355,7 +374,7 @@ export default function EmployeeAttendancePage() {
                           </span>
                         </td>
                         <td style={{ padding: '16px 28px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
+                          <div className="history-timing" style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <FiCheckCircle style={{ color: '#10b981', width: '14px', height: '14px' }} />
                               {punchIn ? format(punchIn, 'hh:mm a') : '--:--'}
