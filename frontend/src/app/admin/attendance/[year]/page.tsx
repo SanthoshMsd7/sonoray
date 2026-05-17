@@ -491,18 +491,58 @@ function AdminAttendanceContent() {
                     {daysInMonth.map(day => {
                       const status = getStatus(emp.id, day);
                       return (
-                        <button
-                          key={day.toString()}
-                          onClick={() => setActivePicker({ empId: emp.id, date: day.toISOString() })}
-                          className={`h-9 md:h-11 rounded-lg flex flex-col items-center justify-center transition-all relative ${
-                            status 
-                              ? `${STATUS_COLORS[status as keyof typeof STATUS_COLORS]} shadow-sm` 
-                              : isSunday(day) ? 'bg-rose-50 text-rose-300' : 'bg-white text-slate-400 hover:bg-blue-50 hover:text-blue-500'
-                          } ${isToday(day) ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
-                        >
-                          <span className="text-[10px] font-black">{format(day, 'd')}</span>
-                          {status && <span className="text-[7px] font-bold leading-none opacity-80">{status[0]}</span>}
-                        </button>
+                        <div key={day.toString()} className="relative flex justify-center items-center h-full">
+                          <button
+                            onClick={() => setActivePicker(activePicker?.empId === emp.id && activePicker?.date === day.toISOString() ? null : { empId: emp.id, date: day.toISOString() })}
+                            className={`w-full h-9 md:h-11 rounded-lg flex flex-col items-center justify-center transition-all relative ${
+                              status 
+                                ? `${STATUS_COLORS[status as keyof typeof STATUS_COLORS]} shadow-sm` 
+                                : isSunday(day) ? 'bg-rose-50 text-rose-350' : 'bg-white text-slate-400 hover:bg-blue-50 hover:text-blue-500'
+                            } ${isToday(day) ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}
+                          >
+                            <span className="text-[10px] font-black">{format(day, 'd')}</span>
+                            {status && <span className="text-[7px] font-bold leading-none opacity-80">{status[0]}</span>}
+                          </button>
+
+                          {/* Status Picker Popover for Mobile */}
+                          {activePicker?.empId === emp.id && activePicker?.date === day.toISOString() && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => setActivePicker(null)}></div>
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 p-2 flex flex-col gap-1 min-w-[120px] animate-in fade-in slide-in-from-top-2 duration-200">
+                                {[
+                                  { id: 'PRESENT', label: 'Present', color: 'bg-emerald-500', icon: FiCheckCircle },
+                                  { id: 'ABSENT', label: 'Absent', color: 'bg-rose-500', icon: FiXCircle },
+                                  { id: 'LEAVE', label: 'Leave', color: 'bg-blue-500', icon: FiInfo },
+                                  { id: 'HOLIDAY', label: 'Holiday', color: 'bg-amber-400', icon: FiCalendar },
+                                ].map(opt => (
+                                  <button
+                                    key={opt.id}
+                                    onClick={() => {
+                                      handleStatusChange(emp.id, day, opt.id);
+                                      setActivePicker(null);
+                                    }}
+                                    className="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 rounded-xl transition-all group"
+                                  >
+                                    <div className={`w-6 h-6 rounded-lg ${opt.color} flex items-center justify-center text-white`}>
+                                      <opt.icon className="w-3.5 h-3.5" />
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900">{opt.label}</span>
+                                  </button>
+                                ))}
+                                <div className="h-px bg-slate-50 my-1"></div>
+                                <button
+                                  onClick={() => {
+                                    handleStatusChange(emp.id, day, '');
+                                    setActivePicker(null);
+                                  }}
+                                  className="w-full text-[10px] font-black text-slate-400 uppercase tracking-widest py-2 hover:text-slate-600"
+                                >
+                                  Clear
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       );
                     })}
                   </div>

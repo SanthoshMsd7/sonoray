@@ -7,10 +7,10 @@ export default function EmployeeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex bg-[#f8fafc] min-h-screen">
+    <div className="flex bg-[#f8fafc] min-h-screen relative w-full overflow-x-hidden">
       <Sidebar />
       <BackgroundTracker />
-      <main className="flex-1 ml-64 p-0">
+      <main className="flex-1 md:ml-64 ml-0 p-0 w-full overflow-x-hidden">
         {children}
       </main>
     </div>

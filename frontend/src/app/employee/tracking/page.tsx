@@ -125,7 +125,7 @@ export default function EmployeeTrackingPage() {
   }, [router]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '24px 32px' }}>
+    <div className="page-container" style={{ minHeight: '100vh', background: '#f8fafc', padding: '24px 32px' }}>
       <style>{`
         @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         .fade-up { animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both; }
@@ -142,10 +142,21 @@ export default function EmployeeTrackingPage() {
           70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
           100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
+
+        @media (max-width: 900px) {
+          .page-container { padding: 16px 20px !important; }
+          .main-grid { grid-template-columns: 1fr !important; }
+        }
+
+        @media (max-width: 640px) {
+          .page-container { padding: 12px 14px !important; }
+          .header-container { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; margin-bottom: 20px !important; }
+          .map-viewer-card { height: 400px !important; min-height: 400px !important; }
+        }
       `}</style>
 
       {/* Header */}
-      <div className="fade-up" style={{ marginBottom: '28px' }}>
+      <div className="fade-up header-container" style={{ marginBottom: '28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
           <div style={{
             background: 'linear-gradient(135deg, #3b82f6, #6366f1)', borderRadius: '10px',
@@ -162,7 +173,7 @@ export default function EmployeeTrackingPage() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '24px' }}>
+      <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '24px' }}>
         
         {/* Left Side: Status Console */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -289,7 +300,7 @@ export default function EmployeeTrackingPage() {
         </div>
 
         {/* Right Side: Map Viewer */}
-        <div className="fade-up" style={{
+        <div className="fade-up map-viewer-card" style={{
           background: 'white', borderRadius: '28px', padding: '16px',
           boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)',
           animationDelay: '0.1s', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', minHeight: '500px',
