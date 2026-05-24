@@ -102,7 +102,6 @@ export const getActiveLocations = async (req: Request, res: Response): Promise<v
         },
         attendance: {
           where: {
-            date: today,
             status: 'PRESENT',
             punchOutTime: null
           }

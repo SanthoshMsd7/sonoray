@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiUserPlus, FiMail, FiPhone, FiTag, FiMoreVertical, FiSearch, FiCalendar, FiClock, FiTrash2 } from 'react-icons/fi';
+import { FiUserPlus, FiMail, FiPhone, FiTag, FiMoreVertical, FiSearch, FiCalendar, FiClock, FiTrash2, FiEdit2 } from 'react-icons/fi';
 import AddEmployeeModal from '../../../components/AddEmployeeModal';
 import EmployeeProfileModal from '../../../components/EmployeeProfileModal';
 
@@ -31,6 +31,7 @@ export default function EmployeeManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [employeeToEdit, setEmployeeToEdit] = useState<any>(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -112,7 +113,10 @@ export default function EmployeeManagement() {
           <p className="text-slate-500 mt-1">Manage team roles, access, and performance tracking.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEmployeeToEdit(null);
+            setIsModalOpen(true);
+          }}
           className="bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md shadow-blue-200 font-bold"
         >
           <FiUserPlus className="stroke-[3px]" /> Add Employee
@@ -190,19 +194,29 @@ export default function EmployeeManagement() {
               <div className="mt-8 pt-6 border-t border-slate-50 flex gap-3">
                 <button 
                   onClick={() => handleDeleteEmployee(emp.id, `${emp.firstName} ${emp.lastName}`)}
-                  className="w-12 h-12 flex items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                  className="w-12 h-12 flex items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm shrink-0"
                   title="Delete Employee"
                 >
                   <FiTrash2 className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={() => {
+                    setEmployeeToEdit(emp);
+                    setIsModalOpen(true);
+                  }}
+                  className="w-12 h-12 flex items-center justify-center rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all shadow-sm shrink-0"
+                  title="Edit Profile Details"
+                >
+                  <FiEdit2 className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => {
                     setSelectedEmployeeId(emp.id);
                     setIsProfileModalOpen(true);
                   }}
-                  className="flex-1 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white py-3 rounded-xl transition-all uppercase tracking-wider"
+                  className="flex-1 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white py-3 rounded-xl transition-all uppercase tracking-wider text-center"
                 >
-                  View Profile
+                  View
                 </button>
                 <button 
                   onClick={() => handleRoleUpdate(emp.user.id, emp.user.role === 'ADMIN' ? 'FIELD_EMPLOYEE' : 'ADMIN')}
@@ -222,8 +236,12 @@ export default function EmployeeManagement() {
 
       <AddEmployeeModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={() => {
+          setIsModalOpen(false);
+          setEmployeeToEdit(null);
+        }} 
         onSuccess={fetchEmployees} 
+        employeeToEdit={employeeToEdit}
       />
 
       {selectedEmployeeId && (
