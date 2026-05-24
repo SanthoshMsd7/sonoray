@@ -329,7 +329,7 @@ export default function MachineManagement() {
                   </h3>
                   {detailMachine.latitude && detailMachine.longitude && (
                     <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${Number(detailMachine.latitude).toFixed(6)},${Number(detailMachine.longitude).toFixed(6)}&travelmode=driving`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${Number(detailMachine.latitude).toFixed(6)},${Number(detailMachine.longitude).toFixed(6)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[9px] font-black text-blue-600 uppercase flex items-center gap-1 hover:underline cursor-pointer"
