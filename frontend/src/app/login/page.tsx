@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -9,7 +9,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPass, setShowPass] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
+
+  // Load saved email on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('remembered_email');
+    if (saved) {
+      setEmail(saved);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +37,12 @@ export default function LoginPage() {
       });
       if (res.ok) {
         const data = await res.json();
+        // Handle Remember Me
+        if (rememberMe) {
+          localStorage.setItem('remembered_email', formattedEmail);
+        } else {
+          localStorage.removeItem('remembered_email');
+        }
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         if (data.user.employeeId) {
@@ -220,6 +236,35 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
+            </div>
+
+            {/* Remember Me */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <label
+                htmlFor="rememberMe"
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+              >
+                <div
+                  onClick={() => setRememberMe(!rememberMe)}
+                  style={{
+                    width: '20px', height: '20px', borderRadius: '6px', flexShrink: 0,
+                    background: rememberMe ? 'linear-gradient(135deg, #3b82f6, #6366f1)' : 'rgba(255,255,255,0.08)',
+                    border: rememberMe ? '2px solid #6366f1' : '2px solid rgba(255,255,255,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.2s', cursor: 'pointer',
+                    boxShadow: rememberMe ? '0 0 12px rgba(99,102,241,0.5)' : 'none'
+                  }}
+                >
+                  {rememberMe && (
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  )}
+                </div>
+                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 500, userSelect: 'none' }}>
+                  Remember me
+                </span>
+              </label>
             </div>
 
             {/* Submit button */}
