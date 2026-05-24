@@ -269,11 +269,11 @@ export default function EditMachineModal({ isOpen, onClose, onSuccess, machine }
                         if (navigator.geolocation) {
                           navigator.geolocation.getCurrentPosition(
                             (pos) => {
-                              setFormData({
-                                ...formData,
+                              setFormData(prev => ({
+                                ...prev,
                                 latitude: pos.coords.latitude.toFixed(6),
                                 longitude: pos.coords.longitude.toFixed(6)
-                              });
+                              }));
                             },
                             (err) => {
                               alert('Could not retrieve device GPS location: ' + err.message);
@@ -313,11 +313,11 @@ export default function EditMachineModal({ isOpen, onClose, onSuccess, machine }
                     lat={formData.latitude ? parseFloat(formData.latitude) : null} 
                     lng={formData.longitude ? parseFloat(formData.longitude) : null} 
                     onChange={(lat, lng) => {
-                      setFormData({
-                        ...formData,
+                      setFormData(prev => ({
+                        ...prev,
                         latitude: lat.toFixed(6),
                         longitude: lng.toFixed(6)
-                      });
+                      }));
                     }}
                   />
                   
