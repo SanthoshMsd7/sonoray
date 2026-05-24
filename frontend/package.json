@@ -2,11 +2,21 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "main": "main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "electron:start": "electron .",
+    "desktop:build": "next build && electron-packager . SonorayERP --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "build": {
+    "appId": "com.sonoray.erp",
+    "productName": "SonorayERP",
+    "win": {
+      "target": "nsis"
+    }
   },
   "dependencies": {
     "date-fns": "^4.1.0",
@@ -27,6 +37,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1",
+    "electron-packager": "^17.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
