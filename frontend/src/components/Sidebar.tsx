@@ -22,7 +22,8 @@ const adminLinks = [
 const employeeLinks = [
   { name: 'My Attendance', href: '/employee/attendance', icon: FiClipboard },
   { name: 'Field Updates', href: '/admin/social', icon: FiActivity },
-  { name: 'My Tickets', href: '/employee/tickets', icon: FiPackage },
+  { name: 'My Tickets', href: '/employee/tickets', icon: FiTag },
+  { name: 'Installations', href: '/employee/installations', icon: FiPackage },
   { name: 'Tracking', href: '/employee/tracking', icon: FiMapPin },
 ];
 
