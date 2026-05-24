@@ -109,6 +109,27 @@ export default function AdminTrackingPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!selectedId) return;
+
+    const requestRefresh = () => {
+      if (socketRef.current && socketRef.current.connected) {
+        console.log(`Requesting immediate location refresh for employee: ${selectedId}`);
+        socketRef.current.emit('requestLocationRefresh', { employeeId: selectedId });
+      }
+    };
+
+    // 1. Request immediately now
+    requestRefresh();
+
+    // 2. Schedule to repeat every 3 minutes
+    const interval = setInterval(requestRefresh, 3 * 60 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [selectedId]);
+
     const trackingCount = locations.filter(l => l.lat !== null && !l.isStale).length;
     const inactiveCount = locations.filter(l => l.isOnDuty && l.isStale).length;
 

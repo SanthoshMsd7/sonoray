@@ -90,6 +90,61 @@ export default function BackgroundTracker() {
       if (employeeId) {
         socketRef.current.emit('register', { employeeId });
       }
+
+      socketRef.current.on('forceLocationUpdate', async () => {
+        console.log('Force location update requested by Admin');
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            setLatLng({ lat: latitude, lng: longitude });
+
+            const employeeId = localStorage.getItem('employeeId');
+            const token = localStorage.getItem('token');
+            if (!employeeId || !token) return;
+
+            let batteryLevel = 100;
+            try {
+              if ('getBattery' in navigator) {
+                const battery: any = await (navigator as any).getBattery();
+                batteryLevel = Math.round(battery.level * 100);
+              }
+            } catch (e) {}
+
+            const payload = {
+              employeeId,
+              latitude,
+              longitude,
+              batteryLevel,
+              timestamp: new Date().toISOString(),
+            };
+
+            if (socketRef.current && socketRef.current.connected) {
+              socketRef.current.emit('updateLocation', payload);
+            }
+
+            // Save coordinate to server
+            try {
+              await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/tracking/update`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+              });
+            } catch (err) {
+              console.error('Failed to post forced coordinates:', err);
+            }
+          },
+          (error) => {
+            console.error('Forced GPS watch fetch error:', error);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000
+          }
+        );
+      });
     }
 
     // Start watching position

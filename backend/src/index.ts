@@ -94,6 +94,14 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('employeeLocationUpdate', data);
   });
 
+  socket.on('requestLocationRefresh', (data) => {
+    const { employeeId } = data;
+    if (employeeId) {
+      console.log(`Admin requested location refresh for employee: ${employeeId}`);
+      io.to(`user_${employeeId}`).emit('forceLocationUpdate');
+    }
+  });
+
   socket.on('privateMessage', async (data) => {
     const { senderId, receiverId, content } = data;
     try {
