@@ -1,0 +1,56 @@
+name: 🖥️ Build Sonoray ERP macOS Desktop App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual triggering from the GitHub UI
+
+jobs:
+  build-mac:
+    name: Build macOS Desktop App (.dmg)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install --legacy-peer-deps
+
+      - name: Install Desktop Packager
+        run: |
+          cd frontend
+          npm install --save-dev electron-packager --legacy-peer-deps
+
+      - name: Build Next.js Production Assets
+        run: |
+          cd frontend
+          npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+      - name: Compile macOS Standalone Desktop App
+        run: |
+          cd frontend
+          # Compile app natively for macOS (Darwin architecture)
+          npx electron-packager . SonorayERP --platform=darwin --arch=x64 --out=dist --overwrite
+          
+          # Compress the output folder to a clean .zip package for easy download & run
+          cd dist
+          zip -r SonorayERP-macOS-Desktop.zip SonorayERP-darwin-x64/
+
+      - name: Upload macOS Desktop Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonoray-erp-mac-desktop
+          path: frontend/dist/SonorayERP-macOS-Desktop.zip
+          if-no-files-found: warn
