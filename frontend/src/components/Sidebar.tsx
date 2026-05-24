@@ -5,13 +5,14 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { 
   FiHome, FiPackage, FiTruck, FiUsers, 
-  FiClipboard, FiMapPin, FiLogOut, FiSettings, FiActivity, FiCalendar, FiUser, FiMenu, FiX
+  FiClipboard, FiMapPin, FiLogOut, FiSettings, FiActivity, FiCalendar, FiUser, FiMenu, FiX, FiTag
 } from 'react-icons/fi';
 
 const adminLinks = [
   { name: 'Dashboard', href: '/admin', icon: FiHome },
   { name: 'Live Tracking', href: '/admin/tracking', icon: FiMapPin },
   { name: 'Field Updates', href: '/admin/social', icon: FiActivity },
+  { name: 'Tickets', href: '/admin/tickets', icon: FiTag },
   { name: 'Installations', href: '/admin/machines', icon: FiPackage },
   { name: 'Inventory', href: '/admin/stock', icon: FiTruck },
   { name: 'Attendance', href: '/admin/attendance', icon: FiClipboard },

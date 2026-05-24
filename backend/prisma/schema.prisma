@@ -176,6 +176,12 @@ model Ticket {
   description       String    @db.Text
   status            TicketStatus @default(OPEN)
   priority          Priority     @default(MEDIUM)
+
+  // New scheduling fields
+  scheduledDate     DateTime?
+  hospitalName      String?
+  location          String?   @db.Text
+  driveUrl          String?   @db.Text
   
   serviceReports    ServiceReport[]
   createdAt         DateTime  @default(now())
@@ -193,9 +199,10 @@ model ServiceReport {
   breakdownDetails  String?   @db.Text
   workDone          String?   @db.Text
   partsReplaced     String?   @db.Text
-  customerSignature String?   @db.Text // Base64 or URL
+  customerSignature String?   @db.Text
   photoUrl          String?
-  status            String?   // COMPLETED, PENDING_PARTS, etc.
+  driveUrl          String?   @db.Text
+  status            String?
   
   latitude          Float?
   longitude         Float?
