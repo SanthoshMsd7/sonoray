@@ -204,7 +204,7 @@ export const completeTicket = async (req: any, res: Response): Promise<void> => 
 // DELETE /api/tickets/:id — Delete ticket (Admin)
 export const deleteTicket = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     // Delete service reports first
     await prisma.serviceReport.deleteMany({ where: { ticketId: id } });
     await prisma.ticket.delete({ where: { id } });
