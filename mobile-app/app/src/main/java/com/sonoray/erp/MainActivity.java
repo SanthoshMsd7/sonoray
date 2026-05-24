@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(webView);
 
         // Bind our persistent, foreground tracking native service Javascript bridge
-        webView.addJavaScriptInterface(new WebAppInterface(this), "AndroidTracker");
+        webView.addJavascriptInterface(new WebAppInterface(this), "AndroidTracker");
 
         // Configure persistent Session cookies so employees stay logged in
         CookieManager.getInstance().setAcceptCookie(true);
