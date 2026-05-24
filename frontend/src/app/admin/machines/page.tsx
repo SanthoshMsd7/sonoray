@@ -83,6 +83,12 @@ export default function MachineManagement() {
       });
       const data = await res.json();
       setMachines(data);
+      // Re-sync detailMachine if it is currently open, so Get Directions uses fresh coordinates
+      setDetailMachine((prev) => {
+        if (!prev) return null;
+        const updated = data.find((m: Machine) => m.id === prev.id);
+        return updated || prev;
+      });
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -323,7 +329,7 @@ export default function MachineManagement() {
                   </h3>
                   {detailMachine.latitude && detailMachine.longitude && (
                     <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${detailMachine.latitude},${detailMachine.longitude}`}
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${Number(detailMachine.latitude).toFixed(6)},${Number(detailMachine.longitude).toFixed(6)}&travelmode=driving`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[9px] font-black text-blue-600 uppercase flex items-center gap-1 hover:underline cursor-pointer"
