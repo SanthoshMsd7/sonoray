@@ -26,7 +26,7 @@ jobs:
           cache-disabled: true
 
       - name: Compile and Build Debug APK
-        run: gradle assembleDebug
+        run: gradle assembleDebug --stacktrace --info
         working-directory: ./mobile-app
 
       - name: Upload APK Artifact
