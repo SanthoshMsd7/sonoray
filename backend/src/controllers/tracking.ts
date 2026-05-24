@@ -44,7 +44,10 @@ export const updateLocation = async (req: Request, res: Response): Promise<void>
     }
 
     // Try to get address
-    const address = await reverseGeocode(latitude, longitude);
+    let address = await reverseGeocode(latitude, longitude);
+    if (!address) {
+      address = `Coordinates: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+    }
 
     const log = await prisma.gpsLog.create({
       data: {

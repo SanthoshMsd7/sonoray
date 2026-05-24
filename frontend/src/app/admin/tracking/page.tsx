@@ -11,6 +11,21 @@ const MapComponent = dynamic(() => import('../../../components/MapComponent'), {
   loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-100">Loading Map...</div>
 });
 
+// Helper to perform client-side reverse geocoding
+const fetchClientAddress = async (lat: number, lng: number): Promise<string | null> => {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const json = await res.json();
+      return json.display_name || null;
+    }
+  } catch (e) {
+    console.error('Client-side reverse geocode error:', e);
+  }
+  return null;
+};
+
 export default function AdminTrackingPage() {
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -37,6 +52,17 @@ export default function AdminTrackingPage() {
             timestamp: emp.timestamp
           }));
           setLocations(formatted);
+
+          // Silent background resolve for any coordinate/unresolved markers
+          formatted.forEach((loc: any) => {
+            if (loc.lat && loc.lng && (!loc.address || loc.address === 'Locating...' || loc.address.startsWith('Coordinates:'))) {
+              fetchClientAddress(loc.lat, loc.lng).then(addr => {
+                if (addr) {
+                  setLocations(prev => prev.map(p => p.id === loc.id ? { ...p, address: addr } : p));
+                }
+              });
+            }
+          });
         }
       } catch (error) {
         console.error('Error:', error);
@@ -58,6 +84,15 @@ export default function AdminTrackingPage() {
           batteryLevel: data.batteryLevel,
           timestamp: new Date().toISOString()
         };
+
+        // Try client-side geocode if coordinates/Locating
+        if (updatedLoc.lat && updatedLoc.lng && (!updatedLoc.address || updatedLoc.address === 'Locating...' || updatedLoc.address.startsWith('Coordinates:'))) {
+          fetchClientAddress(updatedLoc.lat, updatedLoc.lng).then(addr => {
+            if (addr) {
+              setLocations(prev => prev.map(p => p.id === updatedLoc.id ? { ...p, address: addr } : p));
+            }
+          });
+        }
         
         if (index >= 0) {
           const newArr = [...prev];
