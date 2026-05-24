@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <!-- Solid deep-slate background circle -->
+  <path
+      android:fillColor="#0f172a"
+      android:pathData="M50,50m-50,0a50,50 0,1 1,100 0a50,50 0,1 1,-100 0"/>
+  <!-- Smooth blue accent wave in the center representing Sonoray signals -->
+  <path
+      android:fillColor="#3b82f6"
+      android:pathData="M30,50c10,-15 30,-15 40,0c-10,15 -30,15 -40,0z"/>
+</vector>
