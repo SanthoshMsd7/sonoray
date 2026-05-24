@@ -159,6 +159,15 @@ export default function Sidebar() {
             Logout
           </button>
         </div>
+
+        {/* Developer Credit */}
+        <div className="mx-4 mb-4 p-3 rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 border border-blue-100/60">
+          <p className="text-[8px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1">Developed By</p>
+          <p className="text-[13px] font-black text-slate-800 leading-tight tracking-tight">YUGESH ELUMALAI</p>
+          <span className="inline-block mt-1 px-2 py-0.5 bg-blue-600 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+            System Developer
+          </span>
+        </div>
       </div>
     </>
   );
