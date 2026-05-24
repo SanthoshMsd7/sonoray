@@ -58,6 +58,19 @@ export default function BackgroundTracker() {
 
     setTrackingStatus('locating');
 
+    // Trigger Native Android Foreground Background GPS Service
+    try {
+      const employeeId = localStorage.getItem('employeeId');
+      const token = localStorage.getItem('token');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+      if (employeeId && token && (window as any).AndroidTracker && typeof (window as any).AndroidTracker.setPunchState === 'function') {
+        (window as any).AndroidTracker.setPunchState(true, employeeId, token, apiUrl);
+        console.log("Started native Android background tracking foreground service");
+      }
+    } catch (e) {
+      console.error("Native bridge trigger failed", e);
+    }
+
     // Request Screen Wake Lock to prevent phone from sleeping in pocket
     if ('wakeLock' in navigator) {
       try {
@@ -149,6 +162,16 @@ export default function BackgroundTracker() {
   };
 
   const stopTracking = () => {
+    // Stop Native Android Foreground Background GPS Service
+    try {
+      if ((window as any).AndroidTracker && typeof (window as any).AndroidTracker.setPunchState === 'function') {
+        (window as any).AndroidTracker.setPunchState(false, "", "", "");
+        console.log("Stopped native Android background tracking foreground service");
+      }
+    } catch (e) {
+      console.error("Native bridge stop failed", e);
+    }
+
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;

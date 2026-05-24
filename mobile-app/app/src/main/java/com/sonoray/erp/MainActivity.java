@@ -9,8 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.content.Context;
+import android.os.Build;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -51,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
         
         webView = new WebView(this);
         setContentView(webView);
+
+        // Bind our persistent, foreground tracking native service Javascript bridge
+        webView.addJavaScriptInterface(new WebAppInterface(this), "AndroidTracker");
 
         // Configure persistent Session cookies so employees stay logged in
         CookieManager.getInstance().setAcceptCookie(true);
@@ -210,6 +216,32 @@ public class MainActivity extends AppCompatActivity {
             webView.goBack();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    // JavaScript interface to manage native foreground background location service
+    public class WebAppInterface {
+        Context mContext;
+
+        WebAppInterface(Context c) {
+            mContext = c;
+        }
+
+        @JavascriptInterface
+        public void setPunchState(boolean punchedIn, String employeeId, String token, String apiUrl) {
+            Intent serviceIntent = new Intent(mContext, LocationService.class);
+            if (punchedIn) {
+                serviceIntent.putExtra("employeeId", employeeId);
+                serviceIntent.putExtra("token", token);
+                serviceIntent.putExtra("apiUrl", apiUrl);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    mContext.startForegroundService(serviceIntent);
+                } else {
+                    mContext.startService(serviceIntent);
+                }
+            } else {
+                mContext.stopService(serviceIntent);
+            }
         }
     }
 }
