@@ -323,10 +323,6 @@ function AdminAttendanceContent() {
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Absent</span>
              </div>
              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Leave</span>
-             </div>
-             <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Holiday</span>
              </div>
@@ -352,7 +348,6 @@ function AdminAttendanceContent() {
                   ))}
                   <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">P</th>
                   <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">A</th>
-                  <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">L</th>
                   <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">H</th>
                   <th className="px-6 py-4 border-b border-slate-100 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 min-w-[80px]">%</th>
                 </tr>
@@ -409,7 +404,6 @@ function AdminAttendanceContent() {
                                     {[
                                       { id: 'PRESENT', label: 'Present', color: 'bg-emerald-500', icon: FiCheckCircle },
                                       { id: 'ABSENT', label: 'Absent', color: 'bg-rose-500', icon: FiXCircle },
-                                      { id: 'LEAVE', label: 'Leave', color: 'bg-blue-500', icon: FiInfo },
                                       { id: 'HOLIDAY', label: 'Holiday', color: 'bg-amber-400', icon: FiCalendar },
                                     ].map(opt => (
                                       <button
@@ -445,7 +439,6 @@ function AdminAttendanceContent() {
                       })}
                       <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-emerald-600 bg-emerald-50/20">{stats.present}</td>
                       <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-rose-600 bg-rose-50/20">{stats.absent}</td>
-                      <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-blue-600 bg-blue-50/20">{stats.leave}</td>
                       <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-amber-600 bg-amber-50/20">{stats.holiday}</td>
                       <td className="px-3 py-4 border-b border-slate-100 text-center text-sm font-black text-slate-800 bg-slate-50">{stats.percentage}%</td>
                     </tr>
@@ -512,7 +505,6 @@ function AdminAttendanceContent() {
                                 {[
                                   { id: 'PRESENT', label: 'Present', color: 'bg-emerald-500', icon: FiCheckCircle },
                                   { id: 'ABSENT', label: 'Absent', color: 'bg-rose-500', icon: FiXCircle },
-                                  { id: 'LEAVE', label: 'Leave', color: 'bg-blue-500', icon: FiInfo },
                                   { id: 'HOLIDAY', label: 'Holiday', color: 'bg-amber-400', icon: FiCalendar },
                                 ].map(opt => (
                                   <button
@@ -547,7 +539,7 @@ function AdminAttendanceContent() {
                     })}
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2 mt-4">
+                  <div className="grid grid-cols-3 gap-2 mt-4">
                     <div className="bg-emerald-50 rounded-xl p-2 text-center">
                       <p className="text-[8px] font-black text-emerald-400 uppercase">Pres</p>
                       <p className="text-xs font-black text-emerald-600">{stats.present}</p>
@@ -555,10 +547,6 @@ function AdminAttendanceContent() {
                     <div className="bg-rose-50 rounded-xl p-2 text-center">
                       <p className="text-[8px] font-black text-rose-400 uppercase">Abs</p>
                       <p className="text-xs font-black text-rose-600">{stats.absent}</p>
-                    </div>
-                    <div className="bg-blue-50 rounded-xl p-2 text-center">
-                      <p className="text-[8px] font-black text-blue-400 uppercase">Leave</p>
-                      <p className="text-xs font-black text-blue-600">{stats.leave}</p>
                     </div>
                     <div className="bg-amber-50 rounded-xl p-2 text-center">
                       <p className="text-[8px] font-black text-amber-400 uppercase">Hol</p>

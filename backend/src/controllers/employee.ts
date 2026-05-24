@@ -215,3 +215,55 @@ export const getEmployeeById = async (req: Request, res: Response): Promise<void
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const updateMyProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authReq = req as any;
+    if (!authReq.user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+    const { userId } = authReq.user;
+    const { firstName, lastName, phone, password } = req.body;
+
+    const dataToUpdate: any = {};
+    if (firstName !== undefined) dataToUpdate.firstName = firstName;
+    if (lastName !== undefined) dataToUpdate.lastName = lastName;
+    if (phone !== undefined) dataToUpdate.phone = phone;
+
+    // Check if employee record exists for this user
+    const employeeExists = await prisma.employee.findUnique({ where: { userId } });
+
+    if (employeeExists) {
+      await prisma.employee.update({
+        where: { userId },
+        data: dataToUpdate
+      });
+    }
+
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10);
+      await prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash }
+      });
+    }
+
+    // Fetch the updated user and linked employee data
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isActive: true,
+        employee: true
+      }
+    });
+
+    res.json({ message: 'Profile updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Update my profile error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

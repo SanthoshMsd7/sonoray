@@ -198,11 +198,10 @@ export default function EmployeeAttendancePage() {
       </div>
 
       {/* Stats Row */}
-      <div className="fade-up stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px', animationDelay: '0.1s' }}>
+      <div className="fade-up stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px', animationDelay: '0.1s' }}>
         {[
           { label: 'Present', value: totalPresent, color: '#10b981', bg: '#f0fdf4', border: '#bbf7d0' },
           { label: 'Absent', value: totalAbsent, color: '#ef4444', bg: '#fef2f2', border: '#fecaca' },
-          { label: 'On Leave', value: totalLeave, color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe' },
           { label: 'Rate', value: `${attendanceRate}%`, color: '#8b5cf6', bg: '#f5f3ff', border: '#ddd6fe' },
         ].map(stat => (
           <div key={stat.label} style={{
@@ -264,30 +263,7 @@ export default function EmployeeAttendancePage() {
             </button>
           </div>
 
-          {/* Leave request button */}
-          <button 
-            className="fade-up"
-            onClick={() => setIsLeaveModalOpen(true)}
-            style={{
-              width: '100%', background: '#fff', padding: '18px 20px', borderRadius: '20px',
-              border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
-              transition: 'all 0.2s', animationDelay: '0.2s',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.borderColor = '#bfdbfe'}
-            onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(0,0,0,0.05)'}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ background: '#eff6ff', borderRadius: '12px', padding: '10px', display: 'flex' }}>
-                <FiFileText style={{ color: '#3b82f6', width: '18px', height: '18px' }} />
-              </div>
-              <div style={{ textAlign: 'left' }}>
-                <p style={{ fontWeight: 800, color: '#0f172a', margin: 0, fontSize: '14px' }}>Leave Request</p>
-                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Apply for time off</p>
-              </div>
-            </div>
-            <FiChevronRight style={{ color: '#94a3b8', width: '18px', height: '18px' }} />
-          </button>
+          {/* Action button column container space */}
         </div>
 
         {/* History Table */}

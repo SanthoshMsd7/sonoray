@@ -144,10 +144,13 @@ export default function Sidebar() {
         </nav>
 
         <div className="p-4 border-t border-slate-50 space-y-1">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 transition-all">
+          <Link 
+            href="/employee/profile"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 transition-all"
+          >
             <FiSettings className="w-5 h-5" />
             Settings
-          </button>
+          </Link>
           <button 
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all"
