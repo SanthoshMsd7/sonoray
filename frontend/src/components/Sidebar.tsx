@@ -74,7 +74,7 @@ export default function Sidebar() {
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="p-6 pb-4 pt-16 md:pt-6">
-          <h1 className="text-2xl font-black text-blue-600 tracking-tight">Sonoray<span className="text-slate-400">ERP</span></h1>
+          <h1 className="text-2xl font-black text-blue-600 tracking-tight">Sonoray</h1>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
             {!mounted ? '...' : (role === 'ADMIN' || role === 'SUPER_ADMIN' ? 'Administrator' : 'Field Engineer')}
           </p>
