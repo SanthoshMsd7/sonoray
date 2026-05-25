@@ -28,6 +28,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 export default function EmployeeTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterDate, setFilterDate] = useState('');
 
   useEffect(() => { fetchTickets(); }, []);
 
@@ -42,8 +43,9 @@ export default function EmployeeTickets() {
     finally { setLoading(false); }
   };
 
-  const pending = tickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS');
-  const done = tickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED');
+  const filteredTickets = tickets.filter(t => !filterDate || (t.scheduledDate && t.scheduledDate.startsWith(filterDate)));
+  const pending = filteredTickets.filter(t => t.status === 'OPEN' || t.status === 'IN_PROGRESS');
+  const done = filteredTickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED');
 
   const TicketCard = ({ ticket }: { ticket: Ticket }) => {
     const isResolved = ticket.status === 'RESOLVED' || ticket.status === 'CLOSED';
@@ -110,9 +112,17 @@ export default function EmployeeTickets() {
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">My Service Tickets</h1>
-          <p className="text-slate-500 text-sm mt-1">Your assigned service visits and tasks.</p>
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">My Service Tickets</h1>
+            <p className="text-slate-500 text-sm mt-1">Your assigned service visits and tasks.</p>
+          </div>
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 outline-none focus:border-blue-500 transition-colors shadow-sm"
+          />
         </div>
 
         {loading ? (

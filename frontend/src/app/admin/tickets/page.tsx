@@ -21,6 +21,14 @@ interface Ticket {
   customer: { companyName: string };
   assignedTo: { firstName: string; lastName: string } | null;
   createdAt: string;
+  serviceReports?: Array<{
+    id: string;
+    workDone: string | null;
+    breakdownDetails: string | null;
+    partsReplaced: string | null;
+    driveUrl: string | null;
+    createdAt: string;
+  }>;
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -42,6 +50,7 @@ export default function AdminTicketsPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [filterDate, setFilterDate] = useState('');
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -118,6 +127,7 @@ export default function AdminTicketsPage() {
 
   const filtered = tickets
     .filter(t => filterStatus === 'ALL' || t.status === filterStatus)
+    .filter(t => !filterDate || (t.scheduledDate && t.scheduledDate.startsWith(filterDate)))
     .filter(t =>
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       (t.customer?.companyName || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -153,6 +163,12 @@ export default function AdminTicketsPage() {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        <input
+          type="date"
+          value={filterDate}
+          onChange={e => setFilterDate(e.target.value)}
+          className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none text-slate-600 focus:border-blue-500 transition-colors h-[42px]"
+        />
         {['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'].map(s => (
           <button
             key={s}
@@ -193,6 +209,26 @@ export default function AdminTicketsPage() {
 
                   <h3 className="font-bold text-slate-800 mb-1 text-sm">{ticket.title}</h3>
                   <p className="text-xs text-slate-500 line-clamp-1 mb-3">{ticket.description}</p>
+
+                  {ticket.serviceReports && ticket.serviceReports.length > 0 && (
+                    <div className="mt-3 mb-3 p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-2">
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Engineer's Report</p>
+                      {ticket.serviceReports[0].workDone && (
+                        <p className="text-xs text-slate-600"><span className="font-bold text-slate-700">Work Done:</span> {ticket.serviceReports[0].workDone}</p>
+                      )}
+                      {ticket.serviceReports[0].breakdownDetails && (
+                        <p className="text-xs text-slate-600"><span className="font-bold text-slate-700">Details:</span> {ticket.serviceReports[0].breakdownDetails}</p>
+                      )}
+                      {ticket.serviceReports[0].partsReplaced && (
+                        <p className="text-xs text-slate-600"><span className="font-bold text-slate-700">Parts Replaced:</span> {ticket.serviceReports[0].partsReplaced}</p>
+                      )}
+                      {ticket.serviceReports[0].driveUrl && (
+                        <a href={ticket.serviceReports[0].driveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-blue-600 font-bold hover:underline mt-1 bg-blue-50 px-2 py-1 rounded-lg">
+                          <FiExternalLink className="w-3 h-3" /> View Uploaded File/Report
+                        </a>
+                      )}
+                    </div>
+                  )}
 
                   <div className="flex flex-wrap gap-4 text-xs text-slate-500">
                     <span className="flex items-center gap-1">

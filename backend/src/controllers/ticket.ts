@@ -11,6 +11,7 @@ export const getAllTickets = async (req: Request, res: Response): Promise<void> 
         customer: { select: { companyName: true, address: true } },
         machine: { select: { machineName: true, serialNumber: true } },
         assignedTo: { select: { firstName: true, lastName: true } },
+        serviceReports: true,
       },
       orderBy: { createdAt: 'desc' }
     });
