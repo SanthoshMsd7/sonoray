@@ -132,7 +132,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
-            Sonoray ERP Dashboard
+            Sonoray Dashboard
           </h1>
           <p className="text-slate-500 mt-1 font-medium text-sm">
             Welcome back, Admin · Here&rsquo;s your operations overview
