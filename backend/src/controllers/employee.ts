@@ -224,12 +224,13 @@ export const updateMyProfile = async (req: Request, res: Response): Promise<void
       return;
     }
     const { userId } = authReq.user;
-    const { firstName, lastName, phone, password } = req.body;
+    const { firstName, lastName, phone, password, profileImage } = req.body;
 
     const dataToUpdate: any = {};
     if (firstName !== undefined) dataToUpdate.firstName = firstName;
     if (lastName !== undefined) dataToUpdate.lastName = lastName;
     if (phone !== undefined) dataToUpdate.phone = phone;
+    if (profileImage !== undefined) dataToUpdate.profileImage = profileImage;
 
     // Check if employee record exists for this user
     const employeeExists = await prisma.employee.findUnique({ where: { userId } });

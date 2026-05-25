@@ -43,6 +43,7 @@ export default function AdminTrackingPage() {
           const formatted = data.map((emp: any) => ({
             id: emp.employeeId,
             name: `${emp.firstName} ${emp.lastName}`,
+            profileImage: emp.profileImage || null,
             lat: emp.latitude,
             lng: emp.longitude,
             isOnDuty: emp.isOnDuty,
@@ -78,6 +79,7 @@ export default function AdminTrackingPage() {
         const updatedLoc: LocationData = {
           id: data.employeeId,
           name: data.name || (index >= 0 ? prev[index].name : 'Employee'),
+          profileImage: data.profileImage !== undefined ? data.profileImage : (index >= 0 ? prev[index].profileImage : null),
           lat: data.latitude !== undefined && data.latitude !== null ? data.latitude : (index >= 0 ? prev[index].lat : null),
           lng: data.longitude !== undefined && data.longitude !== null ? data.longitude : (index >= 0 ? prev[index].lng : null),
           isOnDuty: data.isOnDuty !== undefined ? data.isOnDuty : (index >= 0 ? prev[index].isOnDuty : false),

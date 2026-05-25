@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [profileImage, setProfileImage] = useState('');
   
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -25,6 +26,7 @@ export default function ProfilePage() {
       setFirstName(savedUser.employee.firstName || '');
       setLastName(savedUser.employee.lastName || '');
       setPhone(savedUser.employee.phone || '');
+      setProfileImage(savedUser.employee.profileImage || '');
     } else {
       // Fallback for user record without linked employee details
       const nameParts = (savedUser.email || '').split('@')[0].split('.');
@@ -62,6 +64,7 @@ export default function ProfilePage() {
           firstName,
           lastName,
           phone,
+          profileImage,
           ...(password ? { password } : {})
         })
       });
@@ -77,7 +80,8 @@ export default function ProfilePage() {
             ...currentSavedUser.employee,
             firstName: data.user.employee?.firstName || firstName,
             lastName: data.user.employee?.lastName || lastName,
-            phone: data.user.employee?.phone || phone
+            phone: data.user.employee?.phone || phone,
+            profileImage: data.user.employee?.profileImage || profileImage
           }
         };
         localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -114,8 +118,12 @@ export default function ProfilePage() {
         <div className="p-8 md:p-10 text-white flex flex-col md:flex-row items-center gap-6" style={{
           background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)'
         }}>
-          <div className="w-20 h-20 rounded-2xl bg-blue-600/30 border border-blue-500/20 flex items-center justify-center font-black text-2xl shadow-lg shadow-black/10">
-            {firstName?.[0]}{lastName?.[0]}
+          <div className="w-20 h-20 rounded-2xl bg-blue-600/30 border border-blue-500/20 flex items-center justify-center font-black text-2xl shadow-lg shadow-black/10 overflow-hidden">
+            {profileImage ? (
+              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <>{firstName?.[0]}{lastName?.[0]}</>
+            )}
           </div>
           <div className="text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-black tracking-tight">{firstName} {lastName}</h1>
@@ -208,6 +216,21 @@ export default function ProfilePage() {
                   className="w-full pl-12 pr-4 py-4 bg-transparent border-none rounded-2xl text-sm font-bold text-slate-700 outline-none"
                 />
               </div>
+            </div>
+          </div>
+
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Profile Image URL</label>
+            <div className="input-group relative flex items-center border border-slate-200 rounded-2xl bg-slate-50/50 transition-all">
+              <FiUser className="absolute left-4 text-slate-400 pointer-events-none" />
+              <input
+                type="url"
+                value={profileImage}
+                onChange={e => setProfileImage(e.target.value)}
+                placeholder="https://example.com/my-photo.jpg"
+                className="w-full pl-12 pr-4 py-4 bg-transparent border-none rounded-2xl text-sm font-bold text-slate-700 outline-none"
+              />
             </div>
           </div>
 

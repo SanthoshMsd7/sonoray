@@ -46,6 +46,7 @@ model Employee {
   salary         Float?
   reportingToId  String?
   region         String?
+  profileImage   String?   @db.Text
   
   attendance     Attendance[]
   leaveRequests  LeaveRequest[]

@@ -17,6 +17,7 @@ if (typeof window !== 'undefined') {
 export interface LocationData {
   id: string;
   name: string;
+  profileImage?: string | null;
   lat: number | null;
   lng: number | null;
   isOnDuty?: boolean;
@@ -96,11 +97,26 @@ export default function MapComponent({ locations, center = [0, 0], zoom = 2 }: M
             shadowSize: [41, 41]
           });
 
-          let currentIcon = greenIcon;
+          let currentIcon: L.Icon | L.DivIcon = greenIcon;
+          let ringColor = '#10b981'; // emerald
           if (loc.isOnDuty === false) {
             currentIcon = greyIcon;
+            ringColor = '#94a3b8'; // slate
           } else if (loc.isStale) {
             currentIcon = redIcon;
+            ringColor = '#f43f5e'; // rose
+          }
+
+          if (loc.profileImage) {
+            currentIcon = new L.DivIcon({
+              className: 'custom-profile-marker',
+              html: `<div style="width: 40px; height: 40px; border-radius: 50%; border: 3px solid ${ringColor}; overflow: hidden; background-color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
+                      <img src="${loc.profileImage}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'" />
+                     </div>`,
+              iconSize: [40, 40],
+              iconAnchor: [20, 20],
+              popupAnchor: [0, -20]
+            });
           }
 
           return (

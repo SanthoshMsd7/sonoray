@@ -73,10 +73,10 @@ export const updateLocation = async (req: Request, res: Response): Promise<void>
       }
     });
 
-    // Fetch employee name for the socket update
+    // Fetch employee name and image for the socket update
     const employee = await prisma.employee.findUnique({
       where: { id: employeeId },
-      select: { firstName: true, lastName: true }
+      select: { firstName: true, lastName: true, profileImage: true }
     });
 
     // Notify admin via socket
@@ -85,6 +85,7 @@ export const updateLocation = async (req: Request, res: Response): Promise<void>
       io.emit('employeeLocationUpdate', {
         employeeId,
         name: employee ? `${employee.firstName} ${employee.lastName}` : 'Employee',
+        profileImage: employee?.profileImage || null,
         latitude,
         longitude,
         address,
@@ -141,6 +142,7 @@ export const getActiveLocations = async (req: Request, res: Response): Promise<v
         employeeId: emp.id,
         firstName: emp.firstName,
         lastName: emp.lastName,
+        profileImage: emp.profileImage || null,
         email: emp.user.email,
         role: emp.user.role,
         isOnDuty: isOnDuty,
