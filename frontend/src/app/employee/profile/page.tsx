@@ -153,13 +153,30 @@ export default function ProfilePage() {
         <div className="p-8 md:p-10 text-white flex flex-col md:flex-row items-center gap-6" style={{
           background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)'
         }}>
-          <div className="w-20 h-20 rounded-2xl bg-blue-600/30 border border-blue-500/20 flex items-center justify-center font-black text-2xl shadow-lg shadow-black/10 overflow-hidden">
+          <label 
+            className="w-20 h-20 rounded-2xl bg-blue-600/30 border border-blue-500/20 flex items-center justify-center font-black text-2xl shadow-lg shadow-black/10 overflow-hidden cursor-pointer group relative block"
+            title="Click to change image"
+          >
             {profileImage ? (
-              <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+              <img 
+                src={profileImage} 
+                alt="Profile" 
+                className="w-full h-full object-cover" 
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
             ) : (
               <>{firstName?.[0]}{lastName?.[0]}</>
             )}
-          </div>
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[10px] font-black uppercase tracking-widest text-white">Upload</span>
+            </div>
+            <input 
+              type="file" 
+              onChange={handleFileUpload}
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
+          </label>
           <div className="text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-black tracking-tight">{firstName} {lastName}</h1>
             <p className="text-blue-400 text-xs font-bold uppercase tracking-widest mt-1 flex items-center justify-center md:justify-start gap-1.5">
@@ -281,7 +298,7 @@ export default function ProfilePage() {
                 ref={fileInputRef}
                 onChange={handleFileUpload}
                 accept="image/*"
-                className="hidden" 
+                style={{ display: 'none' }}
               />
             </div>
           </div>
