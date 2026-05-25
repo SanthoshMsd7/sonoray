@@ -30,7 +30,9 @@ const port = process.env.PORT || 5000;
 const prisma = new PrismaClient();
 
 app.set('trust proxy', 1); // Trust Cloudflare Tunnel proxy
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+}));
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || 
