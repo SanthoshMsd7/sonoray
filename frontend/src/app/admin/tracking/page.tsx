@@ -97,7 +97,7 @@ export default function AdminTrackingPage() {
             }
           });
         }
-        
+
         if (index >= 0) {
           const newArr = [...prev];
           newArr[index] = updatedLoc;
@@ -118,125 +118,227 @@ export default function AdminTrackingPage() {
 
     const requestRefresh = () => {
       if (socketRef.current && socketRef.current.connected) {
-        console.log(`Requesting immediate location refresh for employee: ${selectedId}`);
         socketRef.current.emit('requestLocationRefresh', { employeeId: selectedId });
       }
     };
 
-    // 1. Request immediately now
     requestRefresh();
-
-    // 2. Schedule to repeat every 3 minutes
     const interval = setInterval(requestRefresh, 3 * 60 * 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, [selectedId]);
 
-    const trackingCount = locations.filter(l => l.lat !== null && l.isOnDuty && !l.isStale).length;
-    const inactiveCount = locations.filter(l => l.isOnDuty && l.isStale).length;
-    const offDutyCount = locations.filter(l => !l.isOnDuty).length;
+  const trackingCount = locations.filter(l => l.lat !== null && l.isOnDuty && !l.isStale).length;
+  const inactiveCount = locations.filter(l => l.isOnDuty && l.isStale).length;
+  const offDutyCount = locations.filter(l => !l.isOnDuty).length;
 
-    return (
-      <div className="flex flex-col h-[calc(100vh-6rem)] space-y-4">
-        <div className="flex justify-between items-end px-2">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Real-Time Field Map</h1>
-            <p className="text-slate-500">Live monitoring of service engineers across the region.</p>
-          </div>
-          <div className="flex gap-2">
-            <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-xs font-bold border border-emerald-100 flex items-center gap-2">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
-              {trackingCount} Live Tracking
-            </div>
-            {inactiveCount > 0 && (
-              <div className="bg-rose-50 text-rose-700 px-4 py-2 rounded-full text-xs font-bold border border-rose-100 flex items-center gap-2">
-                <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
-                {inactiveCount} Location Off
-              </div>
-            )}
-            {offDutyCount > 0 && (
-              <div className="bg-slate-50 text-slate-500 px-4 py-2 rounded-full text-xs font-bold border border-slate-200 flex items-center gap-2">
-                <div className="w-2.5 h-2.5 bg-slate-400 rounded-full"></div>
-                {offDutyCount} Off Duty
-              </div>
-            )}
-          </div>
+  const handleSelectEmployee = (id: string, hasLocation: boolean) => {
+    if (!hasLocation) return;
+    setSelectedId(prev => (prev === id ? null : id));
+  };
+
+  return (
+    /* Full-height container — fills the admin layout shell */
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 6rem)', gap: '1rem' }}>
+
+      {/* ── Header ── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 0.5rem', flexShrink: 0 }}>
+        <div>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 700, color: '#1e293b', letterSpacing: '-0.025em', margin: 0 }}>
+            Real-Time Field Map
+          </h1>
+          <p style={{ color: '#64748b', margin: '0.25rem 0 0' }}>
+            Live monitoring of service engineers across the region.
+          </p>
         </div>
-
-      <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
-        {/* Sidebar Table */}
-        <div className="w-full lg:w-96 bg-white rounded-3xl border border-slate-100 shadow-sm flex flex-col overflow-hidden">
-          <div className="p-4 bg-slate-50/50 border-b border-slate-100">
-            <h3 className="font-bold text-slate-700 text-sm">Field Engineers</h3>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <div style={{ background: '#ecfdf5', color: '#065f46', padding: '0.375rem 1rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid #d1fae5', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: 8, height: 8, background: '#10b981', borderRadius: '50%', animation: 'ping 1s cubic-bezier(0,0,0.2,1) infinite' }} />
+            {trackingCount} Live Tracking
           </div>
-          <div className="flex-1 overflow-y-auto">
+          {inactiveCount > 0 && (
+            <div style={{ background: '#fff1f2', color: '#be123c', padding: '0.375rem 1rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid #fecdd3', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: 8, height: 8, background: '#f43f5e', borderRadius: '50%' }} />
+              {inactiveCount} Location Off
+            </div>
+          )}
+          {offDutyCount > 0 && (
+            <div style={{ background: '#f8fafc', color: '#64748b', padding: '0.375rem 1rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: 10, height: 10, background: '#94a3b8', borderRadius: '50%' }} />
+              {offDutyCount} Off Duty
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Split Layout: sidebar + map ── */}
+      {/*
+        Key rule: the outer div is flex + min-h-0 so children can shrink below their content size.
+        The sidebar is a FIXED width (w-80) and scrolls internally — it NEVER affects the map size.
+        The map div is flex-1 so it always fills the remaining space.
+      */}
+      <div style={{ display: 'flex', flex: 1, gap: '1rem', minHeight: 0, overflow: 'hidden' }}>
+
+        {/* ── Employee Sidebar (fixed 320 px, scrolls internally) ── */}
+        <div style={{
+          width: '320px',
+          flexShrink: 0,
+          background: 'white',
+          borderRadius: '1.5rem',
+          border: '1px solid #f1f5f9',
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}>
+          {/* Sidebar header */}
+          <div style={{ padding: '1rem', background: '#f8fafc', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
+            <h3 style={{ fontWeight: 700, color: '#334155', fontSize: '0.875rem', margin: 0 }}>
+              Field Engineers
+              {locations.length > 0 && (
+                <span style={{ marginLeft: '0.5rem', fontWeight: 400, color: '#94a3b8', fontSize: '0.75rem' }}>
+                  ({locations.length})
+                </span>
+              )}
+            </h3>
+            <p style={{ margin: '0.25rem 0 0', fontSize: '0.7rem', color: '#94a3b8' }}>
+              Tap a name to locate on map
+            </p>
+          </div>
+
+          {/* Scrollable employee list */}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
             {locations.length === 0 ? (
-              <div className="p-10 text-center text-slate-400 text-sm italic">No engineers active currently</div>
+              <div style={{ padding: '2.5rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem', fontStyle: 'italic' }}>
+                No engineers active currently
+              </div>
             ) : (
-              <div className="divide-y divide-slate-50">
-                {locations.map((loc) => (
-                  <div 
-                    key={loc.id} 
-                    onClick={() => loc.lat && setSelectedId(loc.id)}
-                    className={`p-4 cursor-pointer transition-all hover:bg-blue-50/50 ${selectedId === loc.id ? 'bg-blue-50 border-l-4 border-blue-600' : ''}`}
-                  >
-                    <div className="flex justify-between items-start mb-1">
-                      <p className="font-bold text-slate-800 text-sm">{loc.name}</p>
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        {loc.timestamp ? new Date(loc.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No Data'}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                        <div className={`w-1.5 h-1.5 rounded-full ${loc.batteryLevel && loc.batteryLevel > 20 ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-                        {loc.batteryLevel || 0}% Battery
+              <div>
+                {locations.map((loc) => {
+                  const isSelected = selectedId === loc.id;
+                  const hasLocation = loc.lat !== null && loc.lng !== null;
+                  return (
+                    <div
+                      key={loc.id}
+                      onClick={() => handleSelectEmployee(loc.id, hasLocation)}
+                      style={{
+                        padding: '0.875rem 1rem',
+                        cursor: hasLocation ? 'pointer' : 'default',
+                        borderBottom: '1px solid #f8fafc',
+                        borderLeft: isSelected ? '4px solid #2563eb' : '4px solid transparent',
+                        background: isSelected ? '#eff6ff' : 'white',
+                        transition: 'all 0.15s ease',
+                      }}
+                      onMouseEnter={e => {
+                        if (!isSelected && hasLocation) (e.currentTarget as HTMLDivElement).style.background = '#f0f9ff';
+                      }}
+                      onMouseLeave={e => {
+                        if (!isSelected) (e.currentTarget as HTMLDivElement).style.background = 'white';
+                      }}
+                    >
+                      {/* Row 1: name + time */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {/* Profile avatar / initials */}
+                          <div style={{
+                            width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                            background: loc.profileImage ? 'transparent' : '#e0e7ff',
+                            border: `2px solid ${loc.isOnDuty === false ? '#cbd5e1' : loc.isStale ? '#fda4af' : '#6ee7b7'}`,
+                            overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            {loc.profileImage ? (
+                              <img src={loc.profileImage} alt={loc.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#4f46e5' }}>
+                                {loc.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                              </span>
+                            )}
+                          </div>
+                          <p style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.8125rem', margin: 0 }}>{loc.name}</p>
+                        </div>
+                        <span style={{ fontSize: '0.625rem', color: '#94a3b8', fontWeight: 500, flexShrink: 0, marginLeft: '0.5rem' }}>
+                          {loc.timestamp
+                            ? new Date(loc.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : 'No Data'}
+                        </span>
                       </div>
+
+                      {/* Row 2: battery + duty badge */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.6875rem', color: '#64748b' }}>
+                          <div style={{
+                            width: 6, height: 6, borderRadius: '50%',
+                            background: loc.batteryLevel && loc.batteryLevel > 20 ? '#10b981' : '#f43f5e'
+                          }} />
+                          {loc.batteryLevel || 0}% Battery
+                        </div>
+                        {loc.isOnDuty ? (
+                          <span style={{ padding: '0.1rem 0.5rem', background: '#dbeafe', color: '#1d4ed8', borderRadius: '0.25rem', fontSize: '0.5625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            On Duty
+                          </span>
+                        ) : (
+                          <span style={{ padding: '0.1rem 0.5rem', background: '#f1f5f9', color: '#64748b', borderRadius: '0.25rem', fontSize: '0.5625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Off Duty
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Row 3: address / status */}
                       {loc.isOnDuty ? (
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[9px] font-extrabold uppercase">On Duty</span>
+                        loc.isStale ? (
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.25rem' }}>
+                              <div style={{ width: 6, height: 6, background: '#f43f5e', borderRadius: '50%' }} />
+                              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#e11d48', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Location Stale
+                              </span>
+                            </div>
+                            <p style={{ fontSize: '0.6875rem', color: '#94a3b8', background: '#f8fafc', padding: '0.375rem 0.5rem', borderRadius: '0.5rem', border: '1px solid #f1f5f9', margin: 0, fontStyle: 'italic' }}>
+                              Last seen: {loc.address || 'Unknown'}
+                            </p>
+                          </div>
+                        ) : !loc.lat ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#94a3b8', fontStyle: 'italic', fontSize: '0.6875rem', padding: '0.375rem 0.5rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
+                            <div style={{ width: 6, height: 6, background: '#cbd5e1', borderRadius: '50%' }} />
+                            🛰️ Syncing location...
+                          </div>
+                        ) : (
+                          <p style={{ fontSize: '0.6875rem', color: '#64748b', background: '#f8fafc', padding: '0.375rem 0.5rem', borderRadius: '0.5rem', border: '1px solid #f1f5f9', margin: 0,
+                            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            📍 {loc.address || 'Locating...'}
+                          </p>
+                        )
                       ) : (
-                        <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] font-extrabold uppercase">Off Duty</span>
+                        <p style={{ fontSize: '0.6875rem', color: '#94a3b8', background: '#f8fafc', padding: '0.375rem 0.5rem', borderRadius: '0.5rem', border: '1px solid #f1f5f9', margin: 0, fontStyle: 'italic' }}>
+                          Shift complete. Location tracking deactivated.
+                        </p>
+                      )}
+
+                      {/* Locate hint when selected */}
+                      {isSelected && (
+                        <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#2563eb', fontSize: '0.625rem', fontWeight: 700 }}>
+                          <span>🎯</span> Map focused on this location
+                        </div>
                       )}
                     </div>
-
-                    {loc.isOnDuty ? (
-                      loc.isStale ? (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 animate-pulse">
-                            <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
-                            <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Location Stale (Lost Connection)</span>
-                          </div>
-                          <p className="text-[11px] text-slate-400 bg-slate-50 p-2 rounded-lg border border-slate-100 italic">
-                            Last seen: {loc.address || 'Unknown'}
-                          </p>
-                        </div>
-                      ) : !loc.lat ? (
-                        <div className="flex items-center gap-2 text-slate-400 italic text-[11px] p-2 bg-slate-50 rounded-lg">
-                          <div className="w-2 h-2 bg-slate-300 rounded-full animate-bounce"></div>
-                          🛰️ Syncing location...
-                        </div>
-                      ) : (
-                        <p className="text-[11px] text-slate-400 line-clamp-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                          {loc.address || 'Locating...'}
-                        </p>
-                      )
-                    ) : (
-                      <p className="text-[11px] text-slate-400 bg-slate-50 p-2 rounded-lg border border-slate-100 italic">
-                        Shift complete. Location tracking deactivated.
-                      </p>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
 
-        {/* Map Area */}
-        <div className="flex-1 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden relative">
-          <MapComponent locations={locations} />
+        {/* ── Map (always flex-1, never shrinks) ── */}
+        <div style={{
+          flex: 1,
+          background: 'white',
+          borderRadius: '1.5rem',
+          border: '1px solid #f1f5f9',
+          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.05)',
+          overflow: 'hidden',
+          position: 'relative',
+          minWidth: 0,
+        }}>
+          <MapComponent locations={locations} focusedId={selectedId} />
         </div>
       </div>
     </div>
