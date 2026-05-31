@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import SplashScreen from '@/components/SplashScreen';
 
 export default function Home() {
   const router = useRouter();
+  const [splashDone, setSplashDone] = useState(false);
 
-  useEffect(() => {
+  const handleSplashFinish = () => {
+    setSplashDone(true);
+
     const token = localStorage.getItem('token');
     const userJson = localStorage.getItem('user');
     const user = userJson ? JSON.parse(userJson) : null;
@@ -20,11 +24,14 @@ export default function Home() {
     } else {
       router.push('/login');
     }
-  }, [router]);
+  };
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center">
-      <p className="text-xl">Redirecting...</p>
-    </div>
+    <>
+      {!splashDone && <SplashScreen onFinish={handleSplashFinish} />}
+      <div className="h-screen w-screen flex items-center justify-center">
+        <p className="text-xl" style={{ color: 'transparent' }}>Loading...</p>
+      </div>
+    </>
   );
 }
