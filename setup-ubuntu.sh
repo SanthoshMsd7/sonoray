@@ -123,7 +123,7 @@ NEXT_PUBLIC_API_URL="${API_URL}"
 EOF
 
 # Install and build Next.js site
-npm install
+npm install --legacy-peer-deps
 npm run build
 cd ..
 echo -e "${GREEN}✓ Frontend compiled successfully for production.${NC}\n"
