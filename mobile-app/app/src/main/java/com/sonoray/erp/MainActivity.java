@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     // ⚙️ CONFIGURED WEBSITE URL
     // Loaded dynamically on app launch
     // =========================================================================
-    private static final String APP_URL = "https://sonoray-frontend.onrender.com/";
+    private static final String APP_URL = "http://192.168.1.100:3000/"; // Replace with your Ubuntu Server IP or domain
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override

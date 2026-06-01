@@ -1,22 +1,20 @@
 module.exports = {
   apps: [
     {
-      name: 'ultaserve-backend',
+      name: 'sonoray-backend',
       cwd: './backend',
-      script: 'npx',
-      args: 'ts-node src/index.ts',
+      script: 'npm',
+      args: 'run start',
       shell: true,
       env: {
-        DATABASE_URL: 'mysql://root:root@localhost:3306/ultaserve_erp',
-        PORT: 5000,
-        JWT_SECRET: 'your_secret_key_here'
+        PORT: 5000
       }
     },
     {
-      name: 'ultaserve-frontend',
+      name: 'sonoray-frontend',
       cwd: './frontend',
-      script: 'npx',
-      args: 'next start',
+      script: 'npm',
+      args: 'run start',
       shell: true,
       env: {
         PORT: 3000

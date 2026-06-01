@@ -2,8 +2,8 @@
 
 **Project Name:** Sonoray ERP (formerly UltaServe)
 **Branding:** Dark Blue & Slate Premium Theme
-**Hosting:** Render (Frontend & Backend)
-**Database:** PostgreSQL (Render Managed)
+**Hosting:** Self-Hosted (Ubuntu Linux Server PC)
+**Database:** MySQL (Local Database)
 
 ## 🚀 Recent Accomplishments
 - **Medical Inventory Expansion:** Added `make`, `modelNumber`, `serialNumber`, and `technicalSpecs` to the `machine_stock` database and UI.
@@ -34,7 +34,7 @@ The `machine_stock` table includes:
 ## 📝 Important Instructions for Future AI
 1. **Always use Sonoray ERP** branding.
 2. **Mobile First:** Ensure all new features work on phone screens (use cards instead of tables on mobile).
-3. **Database URL:** Always refer to the `.env` file in the `backend` folder for Render connection strings.
+3. **Database URL:** Always refer to the `.env` file in the `backend` folder for MySQL connection strings.
 4. **Prisma:** If new fields are added, run `npx prisma generate` in the backend folder.
 
 ---

@@ -33,12 +33,16 @@ app.set('trust proxy', 1); // Trust Cloudflare Tunnel proxy
 app.use(helmet({
   crossOriginResourcePolicy: false,
 }));
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || 
+        allowedOrigins.some(o => origin.startsWith(o)) ||
         origin.includes('trycloudflare.com') || 
         origin.includes('localhost') || 
-        origin.includes('onrender.com') || 
         origin.includes('vercel.app')) {
       callback(null, true);
     } else {

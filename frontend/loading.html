@@ -271,8 +271,8 @@
         <button id="connect-btn">Connect</button>
       </div>
       <div class="quick-links">
-        <button class="quick-btn" id="local-btn">Reset to Local</button>
-        <button class="quick-btn" id="cloud-btn">Reset to Cloud</button>
+        <button class="quick-btn" id="local-btn">Reset to Localhost</button>
+        <button class="quick-btn" id="cloud-btn">Reset to Server IP</button>
       </div>
     </div>
   </div>
@@ -351,8 +351,8 @@
     });
 
     cloudBtn.addEventListener('click', () => {
-      // Default to your live production Render URL
-      const prodUrl = 'https://project-company-demo.onrender.com';
+      // Default to your Ubuntu Server IP or custom domain URL
+      const prodUrl = 'http://192.168.1.100:3000';
       serverInput.value = prodUrl;
       testAndRedirect(prodUrl);
     });
