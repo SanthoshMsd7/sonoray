@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import TransparentLogo from '@/components/TransparentLogo';
 import { 
   FiHome, FiPackage, FiTruck, FiUsers, 
   FiClipboard, FiMapPin, FiLogOut, FiSettings, FiActivity, FiCalendar, FiUser, FiMenu, FiX, FiTag
@@ -76,8 +77,8 @@ export default function Sidebar() {
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="p-6 pb-4 pt-16 md:pt-6">
-          <div className="mb-2 bg-black p-3 rounded-xl border border-black shadow-md flex items-center justify-center">
-            <img src="/logo.jpg" alt="Sonoray Logo" className="h-8 w-auto object-contain" />
+          <div className="mb-2 flex items-center justify-center">
+            <TransparentLogo src="/logo.jpg" alt="Sonoray Logo" style={{ height: '36px', width: 'auto' }} />
           </div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 text-center">
             {!mounted ? '...' : (role === 'ADMIN' || role === 'SUPER_ADMIN' ? 'Administrator' : 'Field Engineer')}

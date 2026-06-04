@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import TransparentLogo from '@/components/TransparentLogo';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -140,26 +141,16 @@ export default function LoginPage() {
           boxShadow: '0 32px 80px rgba(0,0,0,0.4)',
         }}>
           {/* Logo */}
-          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-            <div style={{
-              background: '#000000',
-              borderRadius: '16px',
-              padding: '12px 16px',
-              display: 'inline-block',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
-            }}>
-              <img 
-                src="/logo.jpg" 
-                alt="Sonoray Logo" 
-                style={{ 
-                  width: '240px', 
-                  height: 'auto', 
-                  display: 'block',
-                  margin: '0 auto'
-                }} 
-              />
-            </div>
+          <div style={{ textAlign: 'center', marginBottom: '36px', display: 'flex', justifyContent: 'center' }}>
+            <TransparentLogo 
+              src="/logo.jpg" 
+              alt="Sonoray Logo" 
+              style={{ 
+                width: '260px', 
+                height: 'auto', 
+                display: 'block'
+              }} 
+            />
           </div>
 
           {/* Error message */}
