@@ -141,18 +141,25 @@ export default function LoginPage() {
         }}>
           {/* Logo */}
           <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-            <img 
-              src="/logo.jpg" 
-              alt="Sonoray Logo" 
-              style={{ 
-                width: '260px', 
-                height: 'auto', 
-                margin: '0 auto', 
-                borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
-              }} 
-            />
+            <div style={{
+              background: '#000000',
+              borderRadius: '16px',
+              padding: '12px 16px',
+              display: 'inline-block',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
+            }}>
+              <img 
+                src="/logo.jpg" 
+                alt="Sonoray Logo" 
+                style={{ 
+                  width: '240px', 
+                  height: 'auto', 
+                  display: 'block',
+                  margin: '0 auto'
+                }} 
+              />
+            </div>
           </div>
 
           {/* Error message */}
