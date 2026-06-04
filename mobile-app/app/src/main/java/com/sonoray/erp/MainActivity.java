@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     // ⚙️ CONFIGURED WEBSITE URL
     // Loaded dynamically on app launch
     // =========================================================================
-    private static final String APP_URL = "http://192.168.1.100:3000/"; // Replace with your Ubuntu Server IP or domain
+    private static final String APP_URL = "https://sonoray.vercel.app/"; // Replace with your Ubuntu Server IP or domain
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
