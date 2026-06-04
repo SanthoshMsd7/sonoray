@@ -141,23 +141,18 @@ export default function LoginPage() {
         }}>
           {/* Logo */}
           <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: '72px', height: '72px', borderRadius: '20px',
-              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-              boxShadow: '0 12px 40px rgba(99,102,241,0.5)',
-              marginBottom: '20px',
-            }}>
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <h1 style={{ color: '#fff', fontSize: '28px', fontWeight: 800, letterSpacing: '-0.5px', margin: 0 }}>
-              Sonoray<span style={{ color: '#60a5fa' }}>ERP</span>
-            </h1>
-            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', marginTop: '6px', fontWeight: 500 }}>
-              Field Service Management Platform
-            </p>
+            <img 
+              src="/logo.jpg" 
+              alt="Sonoray Logo" 
+              style={{ 
+                width: '260px', 
+                height: 'auto', 
+                margin: '0 auto', 
+                borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+              }} 
+            />
           </div>
 
           {/* Error message */}

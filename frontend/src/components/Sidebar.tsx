@@ -76,8 +76,10 @@ export default function Sidebar() {
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="p-6 pb-4 pt-16 md:pt-6">
-          <h1 className="text-2xl font-black text-blue-600 tracking-tight">Sonoray</h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+          <div className="mb-2 bg-slate-950 p-3 rounded-xl border border-slate-900 shadow-md flex items-center justify-center">
+            <img src="/logo.jpg" alt="Sonoray Logo" className="h-8 w-auto object-contain" />
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 text-center">
             {!mounted ? '...' : (role === 'ADMIN' || role === 'SUPER_ADMIN' ? 'Administrator' : 'Field Engineer')}
           </p>
         </div>
