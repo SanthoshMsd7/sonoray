@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -142,6 +143,53 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend is running' });
 });
 
-httpServer.listen(port, () => {
+async function initializeDatabase() {
+  try {
+    console.log('🔄 Checking database connection and seeding default admin...');
+    const adminCount = await prisma.user.count({
+      where: { role: 'SUPER_ADMIN' }
+    });
+
+    if (adminCount === 0) {
+      console.log('👤 No SUPER_ADMIN found. Creating default admin account...');
+      const passwordHash = await bcrypt.hash('admin', 10);
+      
+      const user = await prisma.user.create({
+        data: {
+          email: 'admin@admin.com',
+          passwordHash,
+          role: 'SUPER_ADMIN',
+          isActive: true
+        }
+      });
+
+      const dept = await prisma.department.upsert({
+        where: { name: 'Service Department' },
+        update: {},
+        create: { name: 'Service Department' }
+      });
+
+      await prisma.employee.create({
+        data: {
+          userId: user.id,
+          firstName: 'Admin',
+          lastName: 'User',
+          departmentId: dept.id,
+          designation: 'Senior Manager',
+          phone: '1234567890',
+          joiningDate: new Date()
+        }
+      });
+      console.log('🎉 Default admin created successfully!');
+    } else {
+      console.log('✅ Database is ready and default admin already exists.');
+    }
+  } catch (error) {
+    console.error('❌ Database initialization check failed:', error);
+  }
+}
+
+httpServer.listen(port, async () => {
   console.log(`Server running on port ${port}`);
+  await initializeDatabase();
 });
