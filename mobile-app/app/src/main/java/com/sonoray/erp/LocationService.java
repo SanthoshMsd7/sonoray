@@ -1,8 +1,10 @@
 package com.sonoray.erp;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +16,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -59,6 +62,26 @@ public class LocationService extends Service implements LocationListener {
             if (apiUrl != null && apiUrl.endsWith("/")) {
                 apiUrl = apiUrl.substring(0, apiUrl.length() - 1);
             }
+
+            // Save tracking credentials to SharedPreferences in case the service is restarted
+            if (employeeId != null && token != null && apiUrl != null) {
+                getSharedPreferences("tracking_prefs", MODE_PRIVATE).edit()
+                        .putString("employeeId", employeeId)
+                        .putString("token", token)
+                        .putString("apiUrl", apiUrl)
+                        .apply();
+            }
+        } else {
+            // Load credentials from SharedPreferences if intent is null (sticky restart)
+            employeeId = getSharedPreferences("tracking_prefs", MODE_PRIVATE).getString("employeeId", null);
+            token = getSharedPreferences("tracking_prefs", MODE_PRIVATE).getString("token", null);
+            apiUrl = getSharedPreferences("tracking_prefs", MODE_PRIVATE).getString("apiUrl", null);
+        }
+
+        if (employeeId == null || token == null || apiUrl == null) {
+            Log.d(TAG, "No tracking credentials found. Stopping service.");
+            stopSelf();
+            return START_NOT_STICKY;
         }
 
         createNotificationChannel();
@@ -74,6 +97,48 @@ public class LocationService extends Service implements LocationListener {
         startLocationTracking();
 
         return START_STICKY;
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Log.d(TAG, "onTaskRemoved: App was swiped away from recents. Attempting restart...");
+
+        // Ensure parameters are saved before attempting to restart
+        if (employeeId != null && token != null && apiUrl != null) {
+            getSharedPreferences("tracking_prefs", MODE_PRIVATE).edit()
+                    .putString("employeeId", employeeId)
+                    .putString("token", token)
+                    .putString("apiUrl", apiUrl)
+                    .apply();
+        }
+
+        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
+        restartServiceIntent.setPackage(getPackageName());
+
+        int pendingFlags = PendingIntent.FLAG_ONE_SHOT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+
+        PendingIntent restartServicePendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            restartServicePendingIntent = PendingIntent.getForegroundService(
+                    getApplicationContext(), 1, restartServiceIntent, pendingFlags);
+        } else {
+            restartServicePendingIntent = PendingIntent.getService(
+                    getApplicationContext(), 1, restartServiceIntent, pendingFlags);
+        }
+
+        AlarmManager alarmService = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        if (alarmService != null) {
+            alarmService.set(
+                    AlarmManager.ELAPSED_REALTIME,
+                    SystemClock.elapsedRealtime() + 1000,
+                    restartServicePendingIntent
+            );
+        }
+
+        super.onTaskRemoved(rootIntent);
     }
 
     private void startLocationTracking() {

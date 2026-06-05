@@ -26,7 +26,7 @@ export const getPosts = async (req: Request, res: Response) => {
 
 export const createPost = async (req: Request, res: Response) => {
   const { content, mediaUrl, mediaType } = req.body;
-  const userId = (req as any).user.id;
+  const userId = (req as any).user.userId;
 
   try {
     const employee = await prisma.employee.findUnique({ where: { userId } });

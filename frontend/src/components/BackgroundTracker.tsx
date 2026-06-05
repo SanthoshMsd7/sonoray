@@ -58,14 +58,27 @@ export default function BackgroundTracker() {
 
     setTrackingStatus('locating');
 
-    // Trigger Native Android Foreground Background GPS Service
+    // Trigger Native Android/iOS Foreground Background GPS Service
     try {
       const employeeId = localStorage.getItem('employeeId');
       const token = localStorage.getItem('token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+      
+      // Android Native Bridge
       if (employeeId && token && (window as any).AndroidTracker && typeof (window as any).AndroidTracker.setPunchState === 'function') {
         (window as any).AndroidTracker.setPunchState(true, employeeId, token, apiUrl);
         console.log("Started native Android background tracking foreground service");
+      }
+
+      // iOS Native Bridge
+      if (employeeId && token && (window as any).webkit && (window as any).webkit.messageHandlers && (window as any).webkit.messageHandlers.iOSTracker) {
+        (window as any).webkit.messageHandlers.iOSTracker.postMessage({
+          action: 'start',
+          employeeId: employeeId,
+          token: token,
+          apiUrl: apiUrl
+        });
+        console.log("Started native iOS background tracking");
       }
     } catch (e) {
       console.error("Native bridge trigger failed", e);
@@ -217,11 +230,20 @@ export default function BackgroundTracker() {
   };
 
   const stopTracking = () => {
-    // Stop Native Android Foreground Background GPS Service
+    // Stop Native Android/iOS Foreground Background GPS Service
     try {
+      // Android Native Bridge
       if ((window as any).AndroidTracker && typeof (window as any).AndroidTracker.setPunchState === 'function') {
         (window as any).AndroidTracker.setPunchState(false, "", "", "");
         console.log("Stopped native Android background tracking foreground service");
+      }
+
+      // iOS Native Bridge
+      if ((window as any).webkit && (window as any).webkit.messageHandlers && (window as any).webkit.messageHandlers.iOSTracker) {
+        (window as any).webkit.messageHandlers.iOSTracker.postMessage({
+          action: 'stop'
+        });
+        console.log("Stopped native iOS background tracking");
       }
     } catch (e) {
       console.error("Native bridge stop failed", e);

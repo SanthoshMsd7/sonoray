@@ -155,23 +155,61 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestAppPermissions() {
-        String[] permissions = {
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-        };
+        java.util.List<String> listPermissionsNeeded = new java.util.ArrayList<>();
+        listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        listPermissionsNeeded.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        listPermissionsNeeded.add(Manifest.permission.CAMERA);
         
-        boolean needsRequest = false;
-        for (String perm : permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listPermissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+
+        java.util.List<String> listPermissionsToRequest = new java.util.ArrayList<>();
+        for (String perm : listPermissionsNeeded) {
             if (ContextCompat.checkSelfPermission(this, perm) != PackageManager.PERMISSION_GRANTED) {
-                needsRequest = true;
-                break;
+                listPermissionsToRequest.add(perm);
             }
         }
 
-        if (needsRequest) {
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSIONS);
+        if (!listPermissionsToRequest.isEmpty()) {
+            ActivityCompat.requestPermissions(this, 
+                    listPermissionsToRequest.toArray(new String[0]), 
+                    REQUEST_PERMISSIONS);
+        } else {
+            requestBackgroundLocationIfNeeded();
+        }
+    }
+
+    private void requestBackgroundLocationIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) 
+                    != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, 
+                        "Location 'Allow all the time' permission is required for real-time tracking when the app is closed.", 
+                        Toast.LENGTH_LONG).show();
+                ActivityCompat.requestPermissions(this, 
+                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 
+                        102);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSIONS) {
+            boolean fineLocationGranted = false;
+            for (int i = 0; i < permissions.length; i++) {
+                if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    fineLocationGranted = grantResults[i] == PackageManager.PERMISSION_GRANTED;
+                }
+            }
+            if (fineLocationGranted) {
+                requestBackgroundLocationIfNeeded();
+            }
         }
     }
 
@@ -241,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 mContext.stopService(serviceIntent);
+                mContext.getSharedPreferences("tracking_prefs", MODE_PRIVATE).edit().clear().apply();
             }
         }
     }

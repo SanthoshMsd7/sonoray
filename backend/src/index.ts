@@ -193,3 +193,5 @@ httpServer.listen(port, async () => {
   console.log(`Server running on port ${port}`);
   await initializeDatabase();
 });
+
+// TS Server Refresh Trigger
