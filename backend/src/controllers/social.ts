@@ -70,3 +70,5 @@ export const createPost = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error creating post' });
   }
 };
+
+// TS Server Refresh Trigger (social controller types resolved)
