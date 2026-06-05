@@ -23,28 +23,44 @@ export default function SocialFeed() {
   const [loading, setLoading] = useState(true);
   const [newPost, setNewPost] = useState('');
   const [posting, setPosting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts();
     
     const socket = io(process.env.NEXT_PUBLIC_API_URL || '');
     socket.on('newSocialPost', (post: Post) => {
-      setPosts(prev => [post, ...prev]);
+      setPosts(prev => {
+        if (!Array.isArray(prev)) return [post];
+        return [post, ...prev];
+      });
     });
 
     return () => { socket.disconnect(); };
   }, []);
 
   const fetchPosts = async () => {
+    setError(null);
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/social`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      
       const data = await res.json();
-      setPosts(data);
-    } catch (error) {
-      console.error(error);
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to fetch posts');
+      }
+      
+      if (Array.isArray(data)) {
+        setPosts(data);
+      } else {
+        setPosts([]);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Error fetching posts');
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -53,6 +69,7 @@ export default function SocialFeed() {
   const handlePost = async () => {
     if (!newPost.trim()) return;
     setPosting(true);
+    setError(null);
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/social`, {
@@ -63,11 +80,14 @@ export default function SocialFeed() {
         },
         body: JSON.stringify({ content: newPost, mediaType: 'NONE' })
       });
-      if (res.ok) {
-        setNewPost('');
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to create post');
       }
-    } catch (error) {
-      console.error(error);
+      setNewPost('');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Error creating post');
     } finally {
       setPosting(false);
     }
@@ -75,6 +95,13 @@ export default function SocialFeed() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-8">
+      {error && (
+        <div className="p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-sm font-bold flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="text-rose-400 hover:text-rose-600">×</button>
+        </div>
+      )}
+
       <div className="bg-white rounded-3xl shadow-xl shadow-blue-500/5 p-6 border border-slate-100">
         <div className="flex gap-4 mb-4">
           <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-200 italic">U</div>
@@ -110,6 +137,8 @@ export default function SocialFeed() {
       <div className="space-y-6">
         {loading ? (
           [1,2,3].map(i => <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-3xl"></div>)
+        ) : !posts || posts.length === 0 ? (
+          <div className="text-center py-12 text-slate-400 font-bold">No field updates available.</div>
         ) : (
           posts.map((post) => (
             <div key={post.id} className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/5 transition-all">
@@ -117,12 +146,12 @@ export default function SocialFeed() {
                 <div className="flex justify-between items-start mb-6">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center font-black text-xl border border-slate-200 uppercase">
-                      {post.author.firstName[0]}{post.author.lastName[0]}
+                      {(post.author?.firstName?.[0] || 'U')}{(post.author?.lastName?.[0] || 'U')}
                     </div>
                     <div>
-                      <h4 className="font-black text-slate-800 text-lg leading-tight">{post.author.firstName} {post.author.lastName}</h4>
+                      <h4 className="font-black text-slate-800 text-lg leading-tight">{post.author?.firstName || 'Unknown'} {post.author?.lastName || 'User'}</h4>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md uppercase tracking-tighter">{post.author.designation || 'Engineer'}</span>
+                        <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md uppercase tracking-tighter">{post.author?.designation || 'Engineer'}</span>
                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">• {new Date(post.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     </div>

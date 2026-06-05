@@ -5,6 +5,7 @@
     <!-- Internet & Network Status -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- GPS Location (Needed for Employee Geolocation Tracking) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -51,6 +52,19 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
+
+        <!-- Self-healing Service Restarter Receiver -->
+        <receiver
+            android:name=".TrackerReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
         <!-- Secure File Provider for WebRTC/Native Camera file sharing -->
         <provider
