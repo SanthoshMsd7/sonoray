@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { FiImage, FiVideo, FiMic, FiSend, FiMoreHorizontal, FiHeart, FiMessageCircle, FiShare2, FiX, FiChevronUp, FiChevronDown, FiPlay, FiGrid, FiTv } from 'react-icons/fi';
+import { FiImage, FiVideo, FiMic, FiSend, FiMoreHorizontal, FiHeart, FiMessageCircle, FiShare2, FiX, FiChevronUp, FiChevronDown, FiPlay, FiGrid, FiTv, FiTrash2 } from 'react-icons/fi';
 import { io } from 'socket.io-client';
 
 interface Like {
@@ -26,6 +26,7 @@ interface Comment {
 
 interface Post {
   id: string;
+  authorId: string;
   content: string;
   mediaUrl?: string;
   mediaType: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'NONE';
@@ -54,8 +55,12 @@ export default function SocialFeed() {
   const [activeReelIndex, setActiveReelIndex] = useState<number | null>(null);
   const [reelCommentsOpen, setReelCommentsOpen] = useState(false);
 
+  // Reels sort order state
+  const [reelsSortOrder, setReelsSortOrder] = useState<'recent' | 'liked'>('recent');
+
   // User session details
   const [myEmployeeId, setMyEmployeeId] = useState<string>('');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // WhatsApp-like attachments state
   const [selectedMediaType, setSelectedMediaType] = useState<'IMAGE' | 'VIDEO' | 'AUDIO' | 'NONE'>('NONE');
@@ -71,6 +76,12 @@ export default function SocialFeed() {
 
   useEffect(() => {
     setMyEmployeeId(localStorage.getItem('employeeId') || '');
+    try {
+      const userObj = JSON.parse(localStorage.getItem('user') || '{}');
+      setIsAdmin(userObj.role === 'SUPER_ADMIN' || userObj.role === 'ADMIN');
+    } catch (e) {
+      console.error('Error parsing user session', e);
+    }
     fetchPosts();
     
     const socket = io(((process.env as any).NEXT_PUBLIC_API_URL as string) || '');
@@ -116,6 +127,13 @@ export default function SocialFeed() {
           }
           return { ...p, comments: newComments };
         });
+      });
+    });
+
+    socket.on('socialPostDeleted', (data: { postId: string }) => {
+      setPosts((prev: Post[]) => {
+        if (!Array.isArray(prev)) return prev;
+        return prev.filter((p: Post) => p.id !== data.postId);
       });
     });
 
@@ -302,7 +320,37 @@ export default function SocialFeed() {
     }
   };
 
-  const reels = posts.filter((p: Post) => p.mediaType === 'VIDEO' && p.mediaUrl);
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const apiUrl = ((process.env as any).NEXT_PUBLIC_API_URL as string) || '';
+      const res = await fetch(`${apiUrl}/api/social/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to delete post');
+      }
+      setActiveReelIndex(null);
+      setReelCommentsOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Error deleting post');
+    }
+  };
+
+  const reels = posts
+    .filter((p: Post) => p.mediaType === 'VIDEO' && p.mediaUrl)
+    .sort((a, b) => {
+      if (reelsSortOrder === 'liked') {
+        return (b.likes?.length || 0) - (a.likes?.length || 0);
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-8">
@@ -336,6 +384,34 @@ export default function SocialFeed() {
           <FiGrid className="w-4 h-4" /> Reels ({reels.length})
         </button>
       </div>
+
+      {activeTab === 'reels' && (
+        <div className="flex justify-between items-center bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm shadow-blue-500/5 max-w-sm mx-auto animate-[fadeIn_0.2s_ease-out]">
+          <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Sort Reels:</span>
+          <div className="flex gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-100">
+            <button
+              onClick={() => setReelsSortOrder('recent')}
+              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                reelsSortOrder === 'recent'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              Recent
+            </button>
+            <button
+              onClick={() => setReelsSortOrder('liked')}
+              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                reelsSortOrder === 'liked'
+                  ? 'bg-white text-rose-600 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              Most Liked
+            </button>
+          </div>
+        </div>
+      )}
 
       {activeTab === 'feed' ? (
         <>
@@ -442,7 +518,20 @@ export default function SocialFeed() {
                             </div>
                           </div>
                         </div>
-                        <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors"><FiMoreHorizontal className="w-5 h-5" /></button>
+                    <div className="flex gap-1">
+                      {(post.authorId === myEmployeeId || isAdmin) && (
+                        <button 
+                          onClick={() => handleDeletePost(post.id)}
+                          className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                          title="Delete Post"
+                        >
+                          <FiTrash2 className="w-5 h-5" />
+                        </button>
+                      )}
+                      <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
+                        <FiMoreHorizontal className="w-5 h-5" />
+                      </button>
+                    </div>
                       </div>
 
                       <p className="text-slate-600 leading-relaxed font-medium mb-6 whitespace-pre-line">
@@ -592,10 +681,18 @@ export default function SocialFeed() {
             `}</style>
             
             <div className="relative w-full max-w-[450px] h-full sm:h-[90vh] bg-black sm:rounded-[2.5rem] overflow-hidden flex flex-col justify-between shadow-2xl border border-white/5">
-              
-              {/* Top Controls Overlay */}
-              <div className="absolute top-6 left-6 right-6 z-20 flex justify-between items-center text-white">
-                <span className="text-xs font-black tracking-widest uppercase bg-black/45 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">🎥 Reel {activeReelIndex + 1} of {reels.length}</span>
+            <div className="absolute top-6 left-6 right-6 z-20 flex justify-between items-center text-white">
+              <span className="text-xs font-black tracking-widest uppercase bg-black/45 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">🎥 Reel {activeReelIndex + 1} of {reels.length}</span>
+              <div className="flex gap-2">
+                {(post.authorId === myEmployeeId || isAdmin) && (
+                  <button 
+                    onClick={() => handleDeletePost(post.id)}
+                    className="bg-rose-600/80 backdrop-blur-md hover:bg-rose-600 border border-rose-500/30 text-white p-2.5 rounded-2xl transition-all shadow-lg"
+                    title="Delete Reel"
+                  >
+                    <FiTrash2 className="w-5 h-5" />
+                  </button>
+                )}
                 <button 
                   onClick={() => { setActiveReelIndex(null); setReelCommentsOpen(false); }}
                   className="bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/10 text-white p-2.5 rounded-2xl transition-all"
@@ -603,6 +700,7 @@ export default function SocialFeed() {
                   <FiX className="w-6 h-6" />
                 </button>
               </div>
+            </div>
 
               {/* Main Reel Player */}
               <div className="flex-1 w-full h-full flex items-center justify-center relative select-none">

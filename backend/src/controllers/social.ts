@@ -99,7 +99,7 @@ export const createPost = async (req: Request, res: Response) => {
 };
 
 export const toggleLike = async (req: Request, res: Response) => {
-  const { id: postId } = req.params;
+  const postId = req.params.id as string;
   const userId = (req as any).user.userId;
 
   try {
@@ -148,7 +148,7 @@ export const toggleLike = async (req: Request, res: Response) => {
 };
 
 export const addComment = async (req: Request, res: Response) => {
-  const { id: postId } = req.params;
+  const postId = req.params.id as string;
   const { content } = req.body;
   const userId = (req as any).user.userId;
 
@@ -185,5 +185,36 @@ export const addComment = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ message: 'Error adding comment' });
+  }
+};
+
+export const deletePost = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  const userId = (req as any).user.userId;
+
+  try {
+    const employee = await prisma.employee.findUnique({ where: { userId } });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!employee) return res.status(404).json({ message: 'Employee not found' });
+
+    const post = await prisma.socialPost.findUnique({ where: { id } });
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    // Allow deletion if the user is the author OR if they are an admin/super_admin
+    const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+    if (post.authorId !== employee.id && !isAdmin) {
+      return res.status(403).json({ message: 'Unauthorized to delete this post' });
+    }
+
+    await prisma.socialPost.delete({ where: { id } });
+
+    // Broadcast delete event to all connected users
+    const io = req.app.get('socketio');
+    io.emit('socialPostDeleted', { postId: id });
+
+    return res.json({ message: 'Post deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    return res.status(500).json({ message: 'Error deleting post' });
   }
 };
