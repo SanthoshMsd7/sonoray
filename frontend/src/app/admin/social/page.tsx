@@ -196,7 +196,8 @@ export default function SocialFeed() {
       const token = localStorage.getItem('token');
       const apiUrl = ((process.env as any).NEXT_PUBLIC_API_URL as string) || '';
       const res = await fetch(`${apiUrl}/api/social`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        cache: 'no-store'
       });
       
       const data = await res.json();
@@ -335,6 +336,11 @@ export default function SocialFeed() {
         const data = await res.json();
         throw new Error(data.message || 'Failed to delete post');
       }
+      // Instantly remove post from local state
+      setPosts((prev: Post[]) => {
+        if (!Array.isArray(prev)) return prev;
+        return prev.filter((p: Post) => p.id !== postId);
+      });
       setActiveReelIndex(null);
       setReelCommentsOpen(false);
     } catch (err: any) {
@@ -498,12 +504,18 @@ export default function SocialFeed() {
             {loading ? (
               [1,2,3].map((i: number) => <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-3xl"></div>)
             ) : !posts || posts.length === 0 ? (
-              <div className="text-center py-12 text-slate-400 font-bold animate-[fadeIn_0.3s_ease-out]">No field updates available.</div>
+              <div className="text-center py-16 px-6 bg-slate-50/50 border border-dashed border-slate-200 rounded-3xl animate-[fadeIn_0.3s_ease-out]">
+                <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-100 shadow-md">
+                  <FiTv className="w-8 h-8" />
+                </div>
+                <h4 className="font-extrabold text-slate-800 text-base mb-1">Feed is Quiet</h4>
+                <p className="text-slate-400 text-xs font-medium max-w-xs mx-auto">Be the first to share an installation update, video update, or voice note with the company!</p>
+              </div>
             ) : (
               posts.map((post: Post) => {
                 const isLikedByMe = post.likes && post.likes.some(l => l.employeeId === myEmployeeId);
                 return (
-                  <div key={post.id} className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/5 transition-all animate-[fadeIn_0.3s_ease-out]">
+                  <div key={post.id} className="bg-white rounded-3xl shadow-md shadow-slate-100/35 border border-slate-100/80 overflow-hidden group hover:shadow-2xl hover:shadow-blue-500/8 transition-all duration-300 animate-[fadeIn_0.3s_ease-out]">
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-6">
                         <div className="flex items-center gap-4">
@@ -635,7 +647,13 @@ export default function SocialFeed() {
         /* Reels Layout (Instagram Video grid view) */
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 animate-[fadeIn_0.3s_ease-out]">
           {reels.length === 0 ? (
-            <div className="col-span-full text-center py-20 text-slate-400 font-bold">No videos uploaded yet. Post a video update in the feed to see it here!</div>
+            <div className="col-span-full text-center py-16 px-6 bg-slate-50/50 border border-dashed border-slate-200 rounded-3xl animate-[fadeIn_0.3s_ease-out]">
+              <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-100 shadow-md">
+                <FiVideo className="w-8 h-8" />
+              </div>
+              <h4 className="font-extrabold text-slate-800 text-base mb-1">No Video Updates</h4>
+              <p className="text-slate-400 text-xs font-medium max-w-xs mx-auto">Upload a video attachment in the feed tab to share your field updates and see them here as Reels!</p>
+            </div>
           ) : (
             reels.map((post, idx) => (
               <div 

@@ -33,7 +33,8 @@ router.post('/', upload.single('image'), (req, res) => {
   }
   
   // Return the public URL for the file
-  const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+  const protocol = (req.headers['x-forwarded-proto'] as string) || req.protocol;
+  const fileUrl = `${protocol}://${req.get('host')}/uploads/${req.file.filename}`;
   res.json({ url: fileUrl });
 });
 

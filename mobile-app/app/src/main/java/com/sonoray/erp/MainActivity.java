@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
     private String cameraPhotoPath;
+    private Uri cameraPhotoUri;
 
     private static final int REQUEST_PERMISSIONS = 100;
     private static final int INPUT_FILE_REQUEST_CODE = 101;
@@ -124,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
                         Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
                                 "com.sonoray.erp.fileprovider",
                                 photoFile);
+                        cameraPhotoUri = photoURI;
                         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                     } else {
                         takePictureIntent = null;
@@ -277,8 +279,8 @@ public class MainActivity extends AppCompatActivity {
         Uri[] results = null;
         if (resultCode == Activity.RESULT_OK) {
             if (data == null || data.getData() == null) {
-                if (cameraPhotoPath != null) {
-                    results = new Uri[]{Uri.parse(cameraPhotoPath)};
+                if (cameraPhotoUri != null) {
+                    results = new Uri[]{cameraPhotoUri};
                 }
             } else {
                 String dataString = data.getDataString();
