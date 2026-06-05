@@ -132,10 +132,18 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                contentSelectionIntent.setType("image/*");
+                
+                String acceptType = "image/*";
+                if (fileChooserParams != null && fileChooserParams.getAcceptTypes() != null && fileChooserParams.getAcceptTypes().length > 0) {
+                    String firstAccept = fileChooserParams.getAcceptTypes()[0];
+                    if (firstAccept != null && !firstAccept.trim().isEmpty()) {
+                        acceptType = firstAccept;
+                    }
+                }
+                contentSelectionIntent.setType(acceptType);
 
                 Intent[] intentArray;
-                if (takePictureIntent != null) {
+                if (takePictureIntent != null && acceptType.startsWith("image/")) {
                     intentArray = new Intent[]{takePictureIntent};
                 } else {
                     intentArray = new Intent[0];
@@ -143,7 +151,16 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
                 chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-                chooserIntent.putExtra(Intent.EXTRA_TITLE, "Upload Equipment Photo");
+                
+                String title = "Upload Attachment";
+                if (acceptType.startsWith("image/")) {
+                    title = "Select or Take Photo";
+                } else if (acceptType.startsWith("video/")) {
+                    title = "Select Video";
+                } else if (acceptType.startsWith("audio/")) {
+                    title = "Select Audio";
+                }
+                chooserIntent.putExtra(Intent.EXTRA_TITLE, title);
                 chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
 
                 startActivityForResult(chooserIntent, INPUT_FILE_REQUEST_CODE);
