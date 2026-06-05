@@ -315,6 +315,24 @@ export default function SocialFeed() {
         const errorMsg = await getErrorMessage(res, 'Failed to toggle like');
         throw new Error(errorMsg);
       }
+
+      const data = await res.json();
+      // Instantly update local state in case socket is disconnected
+      setPosts((prev: Post[]) => {
+        if (!Array.isArray(prev)) return prev;
+        return prev.map((p: Post) => {
+          if (p.id !== postId) return p;
+          let newLikes = [...(p.likes || [])];
+          if (data.liked && data.like) {
+            if (!newLikes.some(l => l.employeeId === myEmployeeId)) {
+              newLikes.push(data.like);
+            }
+          } else {
+            newLikes = newLikes.filter(l => l.employeeId !== myEmployeeId);
+          }
+          return { ...p, likes: newLikes };
+        });
+      });
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Error toggling like');
@@ -355,6 +373,20 @@ export default function SocialFeed() {
         const errorMsg = await getErrorMessage(res, 'Failed to post comment');
         throw new Error(errorMsg);
       }
+
+      const comment = await res.json();
+      // Instantly update local state in case socket is disconnected
+      setPosts((prev: Post[]) => {
+        if (!Array.isArray(prev)) return prev;
+        return prev.map((p: Post) => {
+          if (p.id !== postId) return p;
+          const newComments = [...(p.comments || [])];
+          if (!newComments.some(c => c.id === comment.id)) {
+            newComments.push(comment);
+          }
+          return { ...p, comments: newComments };
+        });
+      });
 
       setCommentInputs((prev: Record<string, string>) => ({ ...prev, [postId]: '' }));
     } catch (err: any) {
