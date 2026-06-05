@@ -90,15 +90,15 @@ export default function SocialFeed() {
     socket.on('socialPostLiked', (data: { postId: string; employeeId: string; action: 'LIKE' | 'UNLIKE'; like?: Like }) => {
       setPosts((prev: Post[]) => {
         if (!Array.isArray(prev)) return prev;
-        return prev.map(p => {
+        return prev.map((p: Post) => {
           if (p.id !== data.postId) return p;
           let newLikes = [...(p.likes || [])];
           if (data.action === 'LIKE' && data.like) {
-            if (!newLikes.some(l => l.employeeId === data.employeeId)) {
+            if (!newLikes.some((l: Like) => l.employeeId === data.employeeId)) {
               newLikes.push(data.like);
             }
           } else if (data.action === 'UNLIKE') {
-            newLikes = newLikes.filter(l => l.employeeId !== data.employeeId);
+            newLikes = newLikes.filter((l: Like) => l.employeeId !== data.employeeId);
           }
           return { ...p, likes: newLikes };
         });
@@ -108,10 +108,10 @@ export default function SocialFeed() {
     socket.on('socialPostCommented', (data: { postId: string; comment: Comment }) => {
       setPosts((prev: Post[]) => {
         if (!Array.isArray(prev)) return prev;
-        return prev.map(p => {
+        return prev.map((p: Post) => {
           if (p.id !== data.postId) return p;
           const newComments = [...(p.comments || [])];
-          if (!newComments.some(c => c.id === data.comment.id)) {
+          if (!newComments.some((c: Comment) => c.id === data.comment.id)) {
             newComments.push(data.comment);
           }
           return { ...p, comments: newComments };
@@ -261,14 +261,14 @@ export default function SocialFeed() {
   };
 
   const toggleComments = (postId: string) => {
-    setExpandedComments(prev => ({
+    setExpandedComments((prev: Record<string, boolean>) => ({
       ...prev,
       [postId]: !prev[postId]
     }));
   };
 
   const handleCommentChange = (postId: string, text: string) => {
-    setCommentInputs(prev => ({
+    setCommentInputs((prev: Record<string, string>) => ({
       ...prev,
       [postId]: text
     }));
@@ -295,14 +295,14 @@ export default function SocialFeed() {
         throw new Error(data.message || 'Failed to post comment');
       }
 
-      setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+      setCommentInputs((prev: Record<string, string>) => ({ ...prev, [postId]: '' }));
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Error posting comment');
     }
   };
 
-  const reels = posts.filter(p => p.mediaType === 'VIDEO' && p.mediaUrl);
+  const reels = posts.filter((p: Post) => p.mediaType === 'VIDEO' && p.mediaUrl);
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-8">
