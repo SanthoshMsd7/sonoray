@@ -206,11 +206,17 @@ export const deletePost = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'Unauthorized to delete this post' });
     }
 
+    // Manually clean up relations to bypass database migration/cascade issues
+    await prisma.socialLike.deleteMany({ where: { postId: id } });
+    await prisma.socialComment.deleteMany({ where: { postId: id } });
+
     await prisma.socialPost.delete({ where: { id } });
 
     // Broadcast delete event to all connected users
     const io = req.app.get('socketio');
-    io.emit('socialPostDeleted', { postId: id });
+    if (io) {
+      io.emit('socialPostDeleted', { postId: id });
+    }
 
     return res.json({ message: 'Post deleted successfully' });
   } catch (error) {

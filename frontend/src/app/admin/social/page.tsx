@@ -41,6 +41,21 @@ interface Post {
   comments: Comment[];
 }
 
+async function getErrorMessage(res: Response, fallback: string): Promise<string> {
+  try {
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await res.json();
+      return data.message || fallback;
+    } else {
+      const text = await res.text();
+      return text || `${fallback} (Status ${res.status})`;
+    }
+  } catch (_) {
+    return `${fallback} (Status ${res.status})`;
+  }
+}
+
 export default function SocialFeed() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -192,10 +207,12 @@ export default function SocialFeed() {
         body: formData
       });
 
-      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to upload media');
+        const errorMsg = await getErrorMessage(res, 'Failed to upload media');
+        throw new Error(errorMsg);
       }
+
+      const data = await res.json();
 
       setMediaUrl(data.url);
       setMediaType(detectedType);
@@ -222,10 +239,12 @@ export default function SocialFeed() {
         cache: 'no-store'
       });
       
-      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to fetch posts');
+        const errorMsg = await getErrorMessage(res, 'Failed to fetch posts');
+        throw new Error(errorMsg);
       }
+
+      const data = await res.json();
       
       if (Array.isArray(data)) {
         const safeData = data.map(p => ({
@@ -265,10 +284,11 @@ export default function SocialFeed() {
           mediaType: mediaType || 'NONE' 
         })
       });
-      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to create post');
+        const errorMsg = await getErrorMessage(res, 'Failed to create post');
+        throw new Error(errorMsg);
       }
+      const data = await res.json();
       setNewPost('');
       setMediaUrl('');
       setMediaType('NONE');
@@ -292,8 +312,8 @@ export default function SocialFeed() {
       });
       
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Failed to toggle like');
+        const errorMsg = await getErrorMessage(res, 'Failed to toggle like');
+        throw new Error(errorMsg);
       }
     } catch (err: any) {
       console.error(err);
@@ -332,8 +352,8 @@ export default function SocialFeed() {
       });
       
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Failed to post comment');
+        const errorMsg = await getErrorMessage(res, 'Failed to post comment');
+        throw new Error(errorMsg);
       }
 
       setCommentInputs((prev: Record<string, string>) => ({ ...prev, [postId]: '' }));
@@ -355,8 +375,8 @@ export default function SocialFeed() {
         }
       });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Failed to delete post');
+        const errorMsg = await getErrorMessage(res, 'Failed to delete post');
+        throw new Error(errorMsg);
       }
       // Instantly remove post from local state
       setPosts((prev: Post[]) => {
