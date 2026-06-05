@@ -29,7 +29,24 @@ export const createPost = async (req: Request, res: Response) => {
   const userId = (req as any).user.userId;
 
   try {
-    const employee = await prisma.employee.findUnique({ where: { userId } });
+    let employee = await prisma.employee.findUnique({ where: { userId } });
+    
+    // Self-healing skeleton employee profile creation if missing (e.g. for super admins)
+    if (!employee) {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (user) {
+        employee = await prisma.employee.create({
+          data: {
+            userId: user.id,
+            firstName: user.email.split('@')[0],
+            lastName: 'User',
+            designation: user.role || 'Admin',
+            joiningDate: new Date()
+          }
+        });
+      }
+    }
+
     if (!employee) return res.status(404).json({ message: 'Employee not found' });
 
     const post = await prisma.socialPost.create({
