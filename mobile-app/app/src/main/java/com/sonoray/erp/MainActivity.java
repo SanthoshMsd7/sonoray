@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
                     REQUEST_PERMISSIONS);
         } else {
             requestBackgroundLocationIfNeeded();
+            requestIgnoreBatteryOptimizations();
         }
     }
 
@@ -197,6 +198,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void requestIgnoreBatteryOptimizations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String packageName = getPackageName();
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+            if (pm != null && !pm.isIgnoringBatteryOptimizations(packageName)) {
+                Toast.makeText(this, 
+                        "Please select 'Unrestricted' battery usage to keep tracking active in the background.", 
+                        Toast.LENGTH_LONG).show();
+                try {
+                    Intent intent = new Intent();
+                    intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    intent.setData(Uri.parse("package:" + packageName));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    try {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                        startActivity(intent);
+                    } catch (Exception ex) {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+                        startActivity(intent);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -209,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
             }
             if (fineLocationGranted) {
                 requestBackgroundLocationIfNeeded();
+                requestIgnoreBatteryOptimizations();
             }
         }
     }
