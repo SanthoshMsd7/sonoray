@@ -14,6 +14,19 @@ export const getPosts = async (req: Request, res: Response) => {
             designation: true,
             department: true
           }
+        },
+        likes: true,
+        comments: {
+          include: {
+            employee: {
+              select: {
+                firstName: true,
+                lastName: true,
+                designation: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'asc' }
         }
       },
       orderBy: { createdAt: 'desc' }
@@ -58,7 +71,19 @@ export const createPost = async (req: Request, res: Response) => {
         authorId: employee.id
       },
       include: {
-        author: true
+        author: true,
+        likes: true,
+        comments: {
+          include: {
+            employee: {
+              select: {
+                firstName: true,
+                lastName: true,
+                designation: true
+              }
+            }
+          }
+        }
       }
     });
 
@@ -73,4 +98,92 @@ export const createPost = async (req: Request, res: Response) => {
   }
 };
 
-// TS Server Refresh Trigger (social controller types resolved)
+export const toggleLike = async (req: Request, res: Response) => {
+  const { id: postId } = req.params;
+  const userId = (req as any).user.userId;
+
+  try {
+    const employee = await prisma.employee.findUnique({ where: { userId } });
+    if (!employee) return res.status(404).json({ message: 'Employee not found' });
+
+    const existingLike = await prisma.socialLike.findUnique({
+      where: {
+        postId_employeeId: {
+          postId,
+          employeeId: employee.id
+        }
+      }
+    });
+
+    const io = req.app.get('socketio');
+
+    if (existingLike) {
+      await prisma.socialLike.delete({
+        where: {
+          id: existingLike.id
+        }
+      });
+      
+      // Broadcast unlike update to all connected users
+      io.emit('socialPostLiked', { postId, employeeId: employee.id, action: 'UNLIKE' });
+
+      return res.json({ message: 'Post unliked successfully', liked: false });
+    } else {
+      const newLike = await prisma.socialLike.create({
+        data: {
+          postId,
+          employeeId: employee.id
+        }
+      });
+
+      // Broadcast like update to all connected users
+      io.emit('socialPostLiked', { postId, employeeId: employee.id, action: 'LIKE', like: newLike });
+
+      return res.status(201).json({ message: 'Post liked successfully', liked: true, like: newLike });
+    }
+  } catch (error) {
+    console.error('Error toggling like:', error);
+    res.status(500).json({ message: 'Error toggling like' });
+  }
+};
+
+export const addComment = async (req: Request, res: Response) => {
+  const { id: postId } = req.params;
+  const { content } = req.body;
+  const userId = (req as any).user.userId;
+
+  if (!content || !content.trim()) {
+    return res.status(400).json({ message: 'Comment content cannot be empty' });
+  }
+
+  try {
+    const employee = await prisma.employee.findUnique({ where: { userId } });
+    if (!employee) return res.status(404).json({ message: 'Employee not found' });
+
+    const comment = await prisma.socialComment.create({
+      data: {
+        postId,
+        employeeId: employee.id,
+        content: content.trim()
+      },
+      include: {
+        employee: {
+          select: {
+            firstName: true,
+            lastName: true,
+            designation: true
+          }
+        }
+      }
+    });
+
+    // Broadcast comment update to all connected users
+    const io = req.app.get('socketio');
+    io.emit('socialPostCommented', { postId, comment });
+
+    return res.status(201).json(comment);
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ message: 'Error adding comment' });
+  }
+};

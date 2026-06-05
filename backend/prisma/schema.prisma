@@ -56,6 +56,8 @@ model Employee {
   sentMessages   Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
   posts          SocialPost[]
+  socialLikes    SocialLike[]
+  socialComments SocialComment[]
 }
 
 model Customer {
@@ -147,6 +149,30 @@ model SocialPost {
   mediaType   MediaType @default(NONE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  likes       SocialLike[]
+  comments    SocialComment[]
+}
+
+model SocialLike {
+  id          String     @id @default(uuid())
+  postId      String
+  post        SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  employeeId  String
+  employee    Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+
+  @@unique([postId, employeeId])
+}
+
+model SocialComment {
+  id          String     @id @default(uuid())
+  postId      String
+  post        SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  employeeId  String
+  employee    Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  content     String     @db.Text
+  createdAt   DateTime   @default(now())
 }
 
 enum MediaType {
