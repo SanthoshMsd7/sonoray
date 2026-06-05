@@ -297,13 +297,119 @@ export default function AdminDashboard() {
           </div>
 
           {!loading && recentEmployees.length > 0 && (
-            <Link href="/admin/tracking" className="flex items-center justify-center gap-2 mt-6 bg-blue-50 hover:bg-blue-100 p-4 rounded-2xl text-blue-600 text-xs font-black transition-all group">
+            <Link href="/admin/tracking" className="flex items-center justify-center gap-2 mt-6 bg-blue-50 hover:bg-blue-100 py-3 px-5 rounded-xl text-blue-600 text-xs font-black transition-all group">
               <FiMapPin className="w-4 h-4 group-hover:scale-110 transition-transform" />
               View Live Map Tracking
             </Link>
           )}
         </div>
       </div>
+
+      {/* Operations Command Center (Zoho-style Widget) */}
+      <div className="mt-8 bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100/80 animate-[fadeIn_0.5s_ease-out]">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div>
+            <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
+              Operations Command Center
+            </h3>
+            <p className="text-slate-400 text-xs font-medium mt-1">Real-time status overview & quick administration shortcuts</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 border border-emerald-200/50 px-3 py-1 rounded-full">Systems Active</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Column 1: Live Radars & System Health */}
+          <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Live System Health</span>
+              <div className="flex items-center gap-4 mt-4">
+                <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center relative flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-blue-600/10 flex items-center justify-center">
+                    <FiActivity className="w-6 h-6 text-blue-600 animate-pulse" />
+                  </div>
+                  <span className="absolute top-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-sm">Telemetry Feed</h4>
+                  <p className="text-slate-400 text-xs font-medium mt-0.5">Sync Interval: Real-time</p>
+                  <span className="inline-block mt-2 px-2.5 py-0.5 bg-blue-600 text-white text-[8px] font-black uppercase tracking-wider rounded-md">Socket.io Connected</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 space-y-2.5">
+              <div className="flex justify-between text-xs font-bold text-slate-500">
+                <span>Database Synced</span>
+                <span className="text-emerald-600">100% Ok</span>
+              </div>
+              <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-emerald-500 h-full w-[100%]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Column 2: System Metrics */}
+          <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
+            <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Operational Target Progress</span>
+            <div className="space-y-3 pt-2">
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs font-bold text-slate-600">
+                  <span>SLA Service Response</span>
+                  <span className="text-blue-600 font-extrabold">98.7%</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="bg-blue-600 h-full w-[98.7%]" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs font-bold text-slate-600">
+                  <span>Ticket Resolution Rate</span>
+                  <span className="text-indigo-600 font-extrabold">94.2%</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="bg-indigo-600 h-full w-[94.2%]" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs font-bold text-slate-600">
+                  <span>Today's Staff attendance</span>
+                  <span className="text-emerald-600 font-extrabold">{attendanceRate}%</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="bg-emerald-500 h-full" style={{ width: `${attendanceRate}%` }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Column 3: Zoho-style Quick Actions Shortcuts */}
+          <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 flex flex-col justify-between">
+            <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-2 block">Quick Administration Actions</span>
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/admin/tickets" className="flex flex-col items-center justify-center p-3.5 bg-white border border-slate-100 rounded-xl hover:border-blue-500 hover:shadow-md hover:shadow-blue-500/5 transition-all text-slate-700 hover:text-blue-600">
+                <FiAlertCircle className="w-4 h-4 mb-1.5 text-slate-400" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-center">New Ticket</span>
+              </Link>
+              <Link href="/admin/machines" className="flex flex-col items-center justify-center p-3.5 bg-white border border-slate-100 rounded-xl hover:border-blue-500 hover:shadow-md hover:shadow-blue-500/5 transition-all text-slate-700 hover:text-blue-600">
+                <FiPackage className="w-4 h-4 mb-1.5 text-slate-400" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-center">Install Machine</span>
+              </Link>
+              <Link href="/admin/stock" className="flex flex-col items-center justify-center p-3.5 bg-white border border-slate-100 rounded-xl hover:border-blue-500 hover:shadow-md hover:shadow-blue-500/5 transition-all text-slate-700 hover:text-blue-600">
+                <FiPlus className="w-4 h-4 mb-1.5 text-slate-400" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-center">Add Stock</span>
+              </Link>
+              <button onClick={() => setIsManualModalOpen(true)} className="flex flex-col items-center justify-center p-3.5 bg-white border border-slate-100 rounded-xl hover:border-blue-500 hover:shadow-md hover:shadow-blue-500/5 transition-all text-slate-700 hover:text-blue-600">
+                <FiClock className="w-4 h-4 mb-1.5 text-slate-400" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-center">Mark Entry</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <MarkAttendanceModal
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}

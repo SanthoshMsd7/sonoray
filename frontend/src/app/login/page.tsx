@@ -266,7 +266,7 @@ export default function LoginPage() {
               disabled={loading}
               className="btn-login"
               style={{
-                width: '100%', padding: '16px',
+                width: '100%', padding: '12px 16px',
                 background: loading ? 'rgba(99,102,241,0.5)' : 'linear-gradient(135deg, #3b82f6, #6366f1)',
                 border: 'none', borderRadius: '14px', color: '#fff',
                 fontSize: '15px', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',

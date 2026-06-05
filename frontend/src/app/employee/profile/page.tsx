@@ -289,7 +289,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingImage}
-                className="px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all border border-slate-200 disabled:opacity-50 whitespace-nowrap"
+                className="px-5 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all border border-slate-200 disabled:opacity-50 whitespace-nowrap"
               >
                 {uploadingImage ? 'Uploading...' : 'Upload from Device'}
               </button>
@@ -342,7 +342,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 disabled:opacity-50 active:scale-95"
+              className="w-full py-3.5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 disabled:opacity-50 active:scale-95"
             >
               {loading ? 'Saving Changes...' : 'Save Profile Settings'}
             </button>
