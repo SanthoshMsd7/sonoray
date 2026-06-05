@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiImage, FiVideo, FiMic, FiSend, FiMoreHorizontal, FiHeart, FiMessageCircle, FiShare2 } from 'react-icons/fi';
 import { io } from 'socket.io-client';
 
@@ -28,9 +28,9 @@ export default function SocialFeed() {
   useEffect(() => {
     fetchPosts();
     
-    const socket = io(process.env.NEXT_PUBLIC_API_URL || '');
+    const socket = io(((process.env as any).NEXT_PUBLIC_API_URL as string) || '');
     socket.on('newSocialPost', (post: Post) => {
-      setPosts(prev => {
+      setPosts((prev: Post[]) => {
         if (!Array.isArray(prev)) return [post];
         return [post, ...prev];
       });
@@ -43,7 +43,8 @@ export default function SocialFeed() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/social`, {
+      const apiUrl = ((process.env as any).NEXT_PUBLIC_API_URL as string) || '';
+      const res = await fetch(`${apiUrl}/api/social`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -72,7 +73,8 @@ export default function SocialFeed() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/social`, {
+      const apiUrl = ((process.env as any).NEXT_PUBLIC_API_URL as string) || '';
+      const res = await fetch(`${apiUrl}/api/social`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -109,7 +111,7 @@ export default function SocialFeed() {
             placeholder="Share an installation update or field note..."
             className="flex-1 bg-slate-50 border-none rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none resize-none min-h-[100px]"
             value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewPost(e.target.value)}
           ></textarea>
         </div>
         <div className="flex justify-between items-center pt-4 border-t border-slate-50">
