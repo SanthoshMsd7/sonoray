@@ -58,55 +58,68 @@ export default function Sidebar() {
       {/* Mobile Toggle Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-[100] p-2.5 bg-white border border-slate-200 rounded-xl shadow-lg text-blue-600"
+        className="md:hidden fixed top-4 left-4 z-[100] p-2.5 bg-[#121c2c] border border-[#1e2d42] rounded-xl shadow-lg text-white"
+        title="Toggle Menu"
       >
-        {isOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+        {isOpen ? <FiX className="w-5 h-5" /> : <FiMenu className="w-5 h-5" />}
       </button>
 
       {/* Backdrop for Mobile */}
       {isOpen && (
         <div 
           onClick={() => setIsOpen(false)}
-          className="md:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[80]"
+          className="md:hidden fixed inset-0 bg-[#070c14]/65 backdrop-blur-sm z-[80]"
         />
       )}
 
+      {/* Main Sidebar Wrapper */}
       <div className={`
-        w-64 bg-white h-screen border-r border-slate-100 flex flex-col fixed left-0 top-0 shadow-sm no-print z-[90]
+        w-64 bg-[#121c2c] h-screen border-r border-[#1e2d42] flex flex-col fixed left-0 top-0 shadow-xl no-print z-[90]
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <div className="p-6 pb-4 pt-16 md:pt-6">
-          <div className="mb-2 flex items-center justify-center">
-            <TransparentLogo src="/logo.jpg" alt="Sonoray Logo" style={{ height: '36px', width: 'auto' }} />
+        {/* Header Branding Container */}
+        <div className="bg-[#0b121f] px-6 py-5 border-b border-[#1e2d42] flex flex-col items-center gap-2">
+          <div className="flex items-center justify-center p-1 bg-white/5 rounded-xl border border-white/10">
+            <TransparentLogo src="/logo.jpg" alt="Sonoray Logo" style={{ height: '32px', width: 'auto' }} />
           </div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 text-center">
-            {!mounted ? '...' : (role === 'ADMIN' || role === 'SUPER_ADMIN' ? 'Administrator' : 'Field Engineer')}
-          </p>
+          <div className="flex flex-col items-center">
+            <span className="text-[10px] font-black text-slate-300 tracking-wider uppercase">Sonoray ERP</span>
+            <span className="px-2 py-0.5 mt-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              {!mounted ? '...' : (role === 'ADMIN' || role === 'SUPER_ADMIN' ? 'Administrator' : 'Field Engineer')}
+            </span>
+          </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto" onClick={() => setIsOpen(false)}>
+        {/* Scrollable Navigation Menu */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800" onClick={() => setIsOpen(false)}>
           {links.map((link) => {
             if (link.name === 'Attendance') {
               return (
                 <div key="Attendance-Group" className="space-y-1">
-                  <div className="flex items-center gap-3 px-4 py-3 text-slate-400 text-[10px] font-black uppercase tracking-widest mt-4">
-                    Attendance Years
+                  <div className="flex items-center gap-2 px-4 py-2.5 text-slate-500 text-[9px] font-black uppercase tracking-widest mt-3">
+                    <FiClipboard className="w-3.5 h-3.5" />
+                    <span>Attendance Records</span>
                   </div>
-                  {years.map(year => (
-                    <Link 
-                      key={year} 
-                      href={`/admin/attendance/${year}`}
-                      className={`flex items-center gap-3 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                        pathname === `/admin/attendance/${year}`
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
-                          : 'text-slate-500 hover:bg-slate-50'
-                      }`}
-                    >
-                      <FiCalendar className="w-4 h-4" />
-                      {year}
-                    </Link>
-                  ))}
+                  <div className="pl-3 ml-4 border-l border-[#1e2d42] space-y-1">
+                    {years.map(year => {
+                      const isYearActive = pathname === `/admin/attendance/${year}`;
+                      return (
+                        <Link 
+                          key={year} 
+                          href={`/admin/attendance/${year}`}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
+                            isYearActive
+                              ? 'text-blue-400 font-semibold' 
+                              : 'text-slate-400 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <FiCalendar className="w-3.5 h-3.5" />
+                          <span>Year {year}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             }
@@ -115,63 +128,75 @@ export default function Sidebar() {
               <Link 
                 key={link.name} 
                 href={link.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 border-l-4 ${
                   isActive 
-                    ? 'bg-blue-50 text-blue-600 font-semibold' 
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                    ? 'bg-blue-600/10 text-blue-400 border-blue-500 font-bold' 
+                    : 'text-slate-400 border-transparent hover:bg-white/5 hover:text-white hover:border-slate-700/60'
                 }`}
               >
-                <link.icon className="w-5 h-5" />
-                {link.name}
+                <link.icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-115 ${isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-white'}`} />
+                <span>{link.name}</span>
               </Link>
             );
           })}
 
-          {/* If admin has an employee record, show "My Attendance" link */}
+          {/* User Records section if admin has an employee ID */}
           {(role === 'ADMIN' || role === 'SUPER_ADMIN') && hasEmployeeRecord && (
-            <div className="pt-4">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 pb-2">
-                My Records
+            <div className="pt-4 space-y-1">
+              <div className="flex items-center gap-2 px-4 py-2.5 text-slate-500 text-[9px] font-black uppercase tracking-widest">
+                <FiUser className="w-3.5 h-3.5" />
+                <span>My Profile</span>
               </div>
               <Link 
                 href="/employee/attendance"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 border-l-4 ${
                   pathname === '/employee/attendance'
-                    ? 'bg-emerald-50 text-emerald-600 font-semibold' 
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                    ? 'bg-emerald-600/10 text-emerald-400 border-emerald-500 font-bold' 
+                    : 'text-slate-400 border-transparent hover:bg-white/5 hover:text-white hover:border-slate-700/60'
                 }`}
               >
-                <FiUser className="w-5 h-5" />
-                My Attendance
+                <FiUser className="w-4 h-4 transition-transform duration-200 group-hover:scale-115 text-slate-400 group-hover:text-white" />
+                <span>My Attendance</span>
               </Link>
             </div>
           )}
         </nav>
 
-        <div className="p-4 border-t border-slate-50 space-y-1">
-          <Link 
-            href="/employee/profile"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 transition-all"
-          >
-            <FiSettings className="w-5 h-5" />
-            Settings
-          </Link>
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all"
-          >
-            <FiLogOut className="w-5 h-5" />
-            Logout
-          </button>
-        </div>
+        {/* Footer Area with Settings and Logout */}
+        <div className="p-3 bg-[#0b121f]/60 border-t border-[#1e2d42] space-y-2">
+          <div className="flex gap-2">
+            <Link 
+              href="/employee/profile"
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all duration-200 ${
+                pathname === '/employee/profile'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-[#182232] text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <FiSettings className="w-3.5 h-3.5" />
+              <span>Settings</span>
+            </Link>
+            <button 
+              onClick={handleLogout}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-wider bg-rose-600/10 text-rose-400 border border-rose-500/20 hover:bg-rose-600 hover:text-white transition-all duration-200"
+            >
+              <FiLogOut className="w-3.5 h-3.5" />
+              <span>Logout</span>
+            </button>
+          </div>
 
-        {/* Developer Credit */}
-        <div className="mx-4 mb-4 p-3 rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 border border-blue-100/60">
-          <p className="text-[8px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1">Developed By</p>
-          <p className="text-[13px] font-black text-slate-800 leading-tight tracking-tight">YUGESH ELUMALAI</p>
-          <span className="inline-block mt-1 px-2 py-0.5 bg-blue-600 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
-            System Developer
-          </span>
+          {/* Developer Credit Signature */}
+          <div className="p-3 rounded-xl bg-gradient-to-br from-[#182232] to-[#0b121f] border border-[#1e2d42] flex flex-col gap-1">
+            <span className="text-[7px] font-black text-blue-400 uppercase tracking-widest">ERP Developer</span>
+            <span className="text-xs font-black text-white leading-none">YUGESH ELUMALAI</span>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="px-2 py-0.5 bg-blue-600 text-white text-[7px] font-black uppercase tracking-widest rounded-full leading-none">
+                System Architect
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+              <span className="text-[7px] font-bold text-slate-500">Live</span>
+            </div>
+          </div>
         </div>
       </div>
     </>
