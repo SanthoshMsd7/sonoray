@@ -63,12 +63,12 @@ export default function SocialFeed() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   // WhatsApp-like attachments state
-  const [selectedMediaType, setSelectedMediaType] = useState<'IMAGE' | 'VIDEO' | 'AUDIO' | 'NONE'>('NONE');
-  const [acceptType, setAcceptType] = useState('image/*');
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState<'IMAGE' | 'VIDEO' | 'AUDIO' | 'NONE'>('NONE');
   const [uploadingMedia, setUploadingMedia] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
 
   // Instagram-style comment interface state
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
@@ -141,22 +141,42 @@ export default function SocialFeed() {
   }, []);
 
   const triggerMediaUpload = (type: 'IMAGE' | 'VIDEO' | 'AUDIO') => {
-    setSelectedMediaType(type);
-    if (type === 'IMAGE') setAcceptType('image/*');
-    else if (type === 'VIDEO') setAcceptType('video/*');
-    else if (type === 'AUDIO') setAcceptType('audio/*');
-    
-    setTimeout(() => {
-      fileInputRef.current?.click();
-    }, 50);
+    if (type === 'IMAGE') {
+      imageInputRef.current?.click();
+    } else if (type === 'VIDEO') {
+      videoInputRef.current?.click();
+    } else if (type === 'AUDIO') {
+      audioInputRef.current?.click();
+    }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fallbackType: 'IMAGE' | 'VIDEO' | 'AUDIO') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingMedia(true);
     setError(null);
+
+    // Inspect file type/extension to determine mediaType dynamically
+    let detectedType: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'NONE' = 'NONE';
+    if (file.type.startsWith('image/')) {
+      detectedType = 'IMAGE';
+    } else if (file.type.startsWith('video/')) {
+      detectedType = 'VIDEO';
+    } else if (file.type.startsWith('audio/')) {
+      detectedType = 'AUDIO';
+    } else {
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (ext && ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif'].includes(ext)) {
+        detectedType = 'IMAGE';
+      } else if (ext && ['mp4', 'webm', 'ogg', 'mov', 'quicktime', 'mkv', 'avi'].includes(ext)) {
+        detectedType = 'VIDEO';
+      } else if (ext && ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)) {
+        detectedType = 'AUDIO';
+      } else {
+        detectedType = fallbackType;
+      }
+    }
 
     const formData = new FormData();
     formData.append('image', file); // API routes/upload expects 'image'
@@ -178,7 +198,7 @@ export default function SocialFeed() {
       }
 
       setMediaUrl(data.url);
-      setMediaType(selectedMediaType);
+      setMediaType(detectedType);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Error uploading media file');
@@ -186,7 +206,9 @@ export default function SocialFeed() {
       setMediaType('NONE');
     } finally {
       setUploadingMedia(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (imageInputRef.current) imageInputRef.current.value = '';
+      if (videoInputRef.current) videoInputRef.current.value = '';
+      if (audioInputRef.current) audioInputRef.current.value = '';
     }
   };
 
@@ -483,9 +505,23 @@ export default function SocialFeed() {
               
               <input 
                 type="file" 
-                ref={fileInputRef} 
-                accept={acceptType} 
-                onChange={handleFileUpload} 
+                ref={imageInputRef} 
+                accept="image/*" 
+                onChange={(e) => handleFileUpload(e, 'IMAGE')} 
+                style={{ display: 'none' }} 
+              />
+              <input 
+                type="file" 
+                ref={videoInputRef} 
+                accept="video/*" 
+                onChange={(e) => handleFileUpload(e, 'VIDEO')} 
+                style={{ display: 'none' }} 
+              />
+              <input 
+                type="file" 
+                ref={audioInputRef} 
+                accept="audio/*" 
+                onChange={(e) => handleFileUpload(e, 'AUDIO')} 
                 style={{ display: 'none' }} 
               />
 
