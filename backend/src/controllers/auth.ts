@@ -44,7 +44,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         id: user.id,
         employeeId: employee?.id || null,
         email: user.email,
-        role: user.role
+        role: user.role,
+        employee: employee ? {
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          phone: employee.phone,
+          profileImage: employee.profileImage,
+          designation: employee.designation
+        } : null
       }
     });
   } catch (error) {
