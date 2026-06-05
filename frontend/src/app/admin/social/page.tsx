@@ -247,11 +247,11 @@ export default function SocialFeed() {
 
       <div className="space-y-6">
         {loading ? (
-          [1,2,3].map(i => <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-3xl"></div>)
+          [1,2,3].map((i: number) => <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-3xl"></div>)
         ) : !posts || posts.length === 0 ? (
           <div className="text-center py-12 text-slate-400 font-bold">No field updates available.</div>
         ) : (
-          posts.map((post) => (
+          posts.map((post: Post) => (
             <div key={post.id} className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/5 transition-all">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-6">
