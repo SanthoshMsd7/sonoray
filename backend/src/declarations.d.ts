@@ -6,6 +6,8 @@ declare module 'socket.io';
 declare module '@prisma/client';
 declare module 'bcryptjs';
 declare module 'path';
+declare module 'http';
+declare module 'https';
 
 declare var __dirname: string;
 
