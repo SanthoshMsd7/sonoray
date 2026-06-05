@@ -205,7 +205,7 @@ export default function MachineManagement() {
                 <th className="px-6 py-4 cursor-pointer hover:text-blue-600" onClick={() => toggleSort('machineName')}>Machine</th>
                 <th className="px-6 py-4 cursor-pointer hover:text-blue-600" onClick={() => toggleSort('customer')}>Hospital</th>
                 <th className="px-6 py-4 cursor-pointer hover:text-blue-600" onClick={() => toggleSort('installationDate')}>Install Date</th>
-                <th className="px-6 py-4 cursor-pointer hover:text-blue-600" onClick={() => toggleSort('warrantyEndDate')}>Warranty Until</th>
+                <th className="px-6 py-4 cursor-pointer hover:text-blue-600" onClick={() => toggleSort('warrantyEndDate')}>Coverage Until</th>
                 <th className="px-6 py-4">Service Tracker</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 no-print text-right">Actions</th>
@@ -228,11 +228,16 @@ export default function MachineManagement() {
                     <td className="px-6 py-4 text-sm font-bold text-slate-800">{m.machineName}</td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-600">{m.customer?.companyName || 'N/A'}</td>
                     <td className="px-6 py-4 text-sm text-slate-500">{new Date(m.installationDate).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 text-sm text-slate-500 font-medium">{m.warrantyEndDate ? new Date(m.warrantyEndDate).toLocaleDateString() : 'N/A'}</td>
+                    <td className="px-6 py-4 text-sm text-slate-500 font-medium">
+                      {m.contractType === 'WARRANTY'
+                        ? (m.warrantyEndDate ? new Date(m.warrantyEndDate).toLocaleDateString() : 'N/A')
+                        : (m.amcEndDate ? new Date(m.amcEndDate).toLocaleDateString() : 'N/A')
+                      }
+                    </td>
                     <td className="px-6 py-4">{getServiceProgress(m)}</td>
                     <td className="px-6 py-4">{getStatusBadge(m)}</td>
                     <td className="px-6 py-4 text-right no-print">
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                      <div className="flex justify-end gap-1 transition-all">
                         <button onClick={() => handleEdit(m)} className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" title="Edit Installation"><FiEdit2 className="w-4 h-4" /></button>
                         <button onClick={() => handleDelete(m.id)} className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all" title="Delete Installation"><FiTrash2 className="w-4 h-4" /></button>
                         <button onClick={() => setDetailMachine(m)} className="p-2.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all" title="View Details"><FiExternalLink className="w-4 h-4" /></button>
@@ -319,6 +324,30 @@ export default function MachineManagement() {
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Deployment Date</h4>
                   <p className="text-sm font-bold text-slate-700">{new Date(detailMachine.installationDate).toLocaleDateString()}</p>
                 </div>
+                {detailMachine.contractType === 'WARRANTY' && (
+                  <>
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Warranty Start Date</h4>
+                      <p className="text-sm font-bold text-slate-700">{detailMachine.warrantyStartDate ? new Date(detailMachine.warrantyStartDate).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Warranty End Date</h4>
+                      <p className="text-sm font-bold text-slate-700">{detailMachine.warrantyEndDate ? new Date(detailMachine.warrantyEndDate).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                  </>
+                )}
+                {['AMC', 'CMC', 'NAMC'].includes(detailMachine.contractType) && (
+                  <>
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{detailMachine.contractType} Start Date</h4>
+                      <p className="text-sm font-bold text-slate-700">{detailMachine.amcStartDate ? new Date(detailMachine.amcStartDate).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{detailMachine.contractType} End Date</h4>
+                      <p className="text-sm font-bold text-slate-700">{detailMachine.amcEndDate ? new Date(detailMachine.amcEndDate).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Geolocation Section */}

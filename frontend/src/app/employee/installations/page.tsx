@@ -17,7 +17,10 @@ interface Machine {
   installationDate: string;
   status: string;
   contractType: string;
+  warrantyStartDate: string | null;
   warrantyEndDate: string | null;
+  amcStartDate: string | null;
+  amcEndDate: string | null;
   latitude: number | null;
   longitude: number | null;
   address: string | null;
@@ -196,15 +199,41 @@ export default function EmployeeInstallations() {
                           {new Date(machine.installationDate).toLocaleDateString()}
                         </p>
                       </div>
-                      {machine.warrantyEndDate && (
-                        <div className="bg-white p-3 rounded-xl border border-slate-100">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Warranty Ends</p>
-                          <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
-                            <FiShield className="text-emerald-500 w-3 h-3" />
-                            {new Date(machine.warrantyEndDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                      )}
+                      {machine.contractType === 'WARRANTY' ? (
+                        <>
+                          <div className="bg-white p-3 rounded-xl border border-slate-100">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Warranty Start</p>
+                            <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
+                              <FiShield className="text-emerald-500 w-3 h-3" />
+                              {machine.warrantyStartDate ? new Date(machine.warrantyStartDate).toLocaleDateString() : 'N/A'}
+                            </p>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-100">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Warranty Ends</p>
+                            <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
+                              <FiShield className="text-emerald-500 w-3 h-3" />
+                              {machine.warrantyEndDate ? new Date(machine.warrantyEndDate).toLocaleDateString() : 'N/A'}
+                            </p>
+                          </div>
+                        </>
+                      ) : ['AMC', 'CMC', 'NAMC'].includes(machine.contractType) ? (
+                        <>
+                          <div className="bg-white p-3 rounded-xl border border-slate-100">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{machine.contractType} Start</p>
+                            <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
+                              <FiShield className="text-blue-500 w-3 h-3" />
+                              {machine.amcStartDate ? new Date(machine.amcStartDate).toLocaleDateString() : 'N/A'}
+                            </p>
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-slate-100">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{machine.contractType} Ends</p>
+                            <p className="text-sm font-bold text-slate-800 flex items-center gap-1">
+                              <FiShield className="text-blue-500 w-3 h-3" />
+                              {machine.amcEndDate ? new Date(machine.amcEndDate).toLocaleDateString() : 'N/A'}
+                            </p>
+                          </div>
+                        </>
+                      ) : null}
                       <div className="bg-white p-3 rounded-xl border border-slate-100">
                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
                         <p className="text-sm font-bold text-slate-800 flex items-center gap-1">

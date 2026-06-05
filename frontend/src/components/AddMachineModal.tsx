@@ -509,30 +509,34 @@ export default function AddMachineModal({ isOpen, onClose, onSuccess }: AddMachi
              </div>
 
              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-4 p-4 bg-emerald-50/50 rounded-[1.5rem] border border-emerald-100/50">
+                <div className={`space-y-4 p-4 rounded-[1.5rem] border transition-all ${
+                  formData.contractType === 'WARRANTY' ? 'bg-emerald-50/70 border-emerald-300 ring-2 ring-emerald-500/10' : 'opacity-40 bg-slate-50/30 border-slate-100'
+                }`}>
                   <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest text-center">Warranty Period</p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[8px] font-bold text-emerald-400 uppercase ml-1">Start</label>
-                      <input type="date" className="w-full bg-white border-none rounded-xl p-2 text-xs font-bold text-slate-700 outline-none" value={formData.warrantyStartDate} onChange={e => setFormData({...formData, warrantyStartDate: e.target.value})} />
+                      <input type="date" required={formData.contractType === 'WARRANTY'} className="w-full bg-white border-none rounded-xl p-2 text-xs font-bold text-slate-700 outline-none" value={formData.warrantyStartDate} onChange={e => setFormData({...formData, warrantyStartDate: e.target.value})} />
                     </div>
                     <div>
                       <label className="text-[8px] font-bold text-emerald-400 uppercase ml-1">End</label>
-                      <input type="date" className="w-full bg-white border-none rounded-xl p-2 text-xs font-bold text-slate-700 outline-none" value={formData.warrantyEndDate} onChange={e => setFormData({...formData, warrantyEndDate: e.target.value})} />
+                      <input type="date" required={formData.contractType === 'WARRANTY'} className="w-full bg-white border-none rounded-xl p-2 text-xs font-bold text-slate-700 outline-none" value={formData.warrantyEndDate} onChange={e => setFormData({...formData, warrantyEndDate: e.target.value})} />
                     </div>
                   </div>
                 </div>
                 
-                <div className="space-y-4 p-4 bg-blue-50/50 rounded-[1.5rem] border border-blue-100/50">
+                <div className={`space-y-4 p-4 rounded-[1.5rem] border transition-all ${
+                  ['AMC', 'CMC', 'NAMC'].includes(formData.contractType) ? 'bg-blue-50/70 border-blue-300 ring-2 ring-blue-500/10' : 'opacity-40 bg-slate-50/30 border-slate-100'
+                }`}>
                   <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest text-center">AMC Period (If Applicable)</p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[8px] font-bold text-blue-400 uppercase ml-1">Start</label>
-                      <input type="date" className="w-full bg-white border-none rounded-xl p-2 text-xs font-bold text-slate-700 outline-none" value={formData.amcStartDate} onChange={e => setFormData({...formData, amcStartDate: e.target.value})} />
+                      <input type="date" required={['AMC', 'CMC', 'NAMC'].includes(formData.contractType)} className="w-full bg-white border-none rounded-xl p-2 text-xs font-bold text-slate-700 outline-none" value={formData.amcStartDate} onChange={e => setFormData({...formData, amcStartDate: e.target.value})} />
                     </div>
                     <div>
                       <label className="text-[8px] font-bold text-blue-400 uppercase ml-1">End</label>
-                      <input type="date" className="w-full bg-white border-none rounded-xl p-2 text-xs font-bold text-slate-700 outline-none" value={formData.amcEndDate} onChange={e => setFormData({...formData, amcEndDate: e.target.value})} />
+                      <input type="date" required={['AMC', 'CMC', 'NAMC'].includes(formData.contractType)} className="w-full bg-white border-none rounded-xl p-2 text-xs font-bold text-slate-700 outline-none" value={formData.amcEndDate} onChange={e => setFormData({...formData, amcEndDate: e.target.value})} />
                     </div>
                   </div>
                 </div>
